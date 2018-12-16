@@ -6,7 +6,7 @@ import com.tk.kmail.mvp.base.IBase
  * Created by TangKai on 2018/12/14.
  */
 class Login private constructor() {
-    interface View : IBase.View {
+    interface View : IBase.View<Presenter> {
         fun loginOk()
         fun loginNo()
     }

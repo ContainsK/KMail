@@ -11,4 +11,5 @@ interface IBuid {
     fun showWaitingDialog()
     fun hideWaitingDialog()
     fun getAppTitle(): String
+    fun initView()
 }
