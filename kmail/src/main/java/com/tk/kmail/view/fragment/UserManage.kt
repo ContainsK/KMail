@@ -1,21 +1,25 @@
-package com.tk.kmail.view.activity
+package com.tk.kmail.view.fragment
 
 import android.databinding.DataBindingUtil
+import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import com.kmail.greendao.gen.UserBeanDao
-import com.tk.kmail.App
+import android.support.v7.widget.RecyclerView
+import android.view.View
 import com.tk.kmail.R
-import com.tk.kmail.base.BaseActivity
-import com.tk.kmail.base.BasePresenter
+import com.tk.kmail.base.BaseFragment
 import com.tk.kmail.databinding.LayoutSettingBinding
 import com.tk.kmail.model.db_bean.UserBean
 import com.tk.kmail.model.utils.ToastUtils
 import com.tk.kmail.mvp.Setting
+import com.tk.kmail.view.activity.Presenter
 import com.tk.kmail.view.adapter.UserAdapter
 import kotlinx.android.synthetic.main.include_recyclerview.*
 import kotlinx.android.synthetic.main.layout_setting.*
 
-class Setting : BaseActivity(), Setting.View {
+/**
+ * Created by TangKai on 2018/12/21.
+ */
+class UserManage : BaseFragment(), Setting.View {
     override fun refreshUserList(arr: List<UserBean>) {
         var adapter: UserAdapter = recyclerView.adapter as UserAdapter
         adapter.list = arr.toMutableList()
@@ -38,10 +42,11 @@ class Setting : BaseActivity(), Setting.View {
         return R.layout.layout_setting
     }
 
+
     override fun initView() {
         binding = DataBindingUtil.bind(mContentView)
         binding.user = UserBean()
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = UserAdapter(mPresenter.getUserList().toMutableList(), mPresenter)
         til_password.isPasswordVisibilityToggleEnabled = true
         swipeRefresh.setOnRefreshListener {
@@ -58,25 +63,4 @@ class Setting : BaseActivity(), Setting.View {
     }
 
 
-}
-
-class Presenter(mView: Setting.View) : BasePresenter<Setting.View>(mView), Setting.Presenter {
-    val daoBean: UserBeanDao = App.daoSession.userBeanDao
-    override fun refreshUserList() {
-        mView.refreshUserList(getUserList())
-    }
-
-    override fun deleteUser(user: UserBean) {
-        daoBean.delete(user)
-    }
-
-    override fun getUserList(): List<UserBean> {
-        return daoBean.loadAll()
-    }
-
-    override fun addUser(user: UserBean) {
-        daoBean.save(user)
-        mView.addResult(true)
-
-    }
 }

@@ -196,6 +196,7 @@ class Mails(val server: IServer) {
 
         }
         folder.appendMessages(arrayOf(mimeMessage))
+        println("新发送的UID：" + (folder as IMAPFolder).getUID(mimeMessage))
     }
 
     fun getFetchProfile(): FetchProfile {
