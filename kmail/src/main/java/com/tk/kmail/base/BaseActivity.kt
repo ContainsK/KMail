@@ -1,10 +1,10 @@
 package com.tk.kmail.base
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
-import com.tk.kmail.model.utils.Evs
 
 /**
  * Created by TangKai on 2018/12/14.
@@ -26,8 +26,13 @@ abstract class BaseActivity : AppCompatActivity(), IBaseView {
 
     override fun onDestroy() {
         super.onDestroy()
-        Evs.unreg(this)
+        recycler()
     }
+
+    override fun getContext(): Context? {
+        return this
+    }
+
 }
 
 

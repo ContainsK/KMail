@@ -1,9 +1,7 @@
-package com.tk.kmail.model.utils
+package com.tk.kmail.model.mails
 
 import com.sun.mail.imap.IMAPFolder
-import com.tk.kmail.model.bean.DataBean
-import com.tk.kmail.model.bean.IGetData
-import com.tk.kmail.model.bean.IServer
+import com.tk.kmail.model.utils.DesUtil
 import java.util.*
 import javax.mail.*
 import javax.mail.event.*
@@ -113,11 +111,23 @@ class Mails(val server: IServer) {
     }
 
     fun connected(): Boolean {
-        if (!store.isConnected)
-            store.connect()
-        if (!transport.isConnected)
-            transport.connect()
-        return true
+        try {
+            if (!store.isConnected)
+                store.connect()
+            if (!transport.isConnected)
+                transport.connect()
+            return true
+        } catch (a: Exception) {
+            a.printStackTrace()
+        }
+        return false
+    }
+
+    fun closeConnected() {
+        if (store.isConnected)
+            store.close()
+        if (transport.isConnected)
+            transport.close()
     }
 
     fun openFolder(name: String): Folder? {

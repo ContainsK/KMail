@@ -1,16 +1,13 @@
 package com.tk.kmail.view.fragment
 
 import android.databinding.DataBindingUtil
-import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.view.View
 import com.tk.kmail.R
 import com.tk.kmail.base.BaseFragment
 import com.tk.kmail.databinding.LayoutSettingBinding
 import com.tk.kmail.model.db_bean.UserBean
 import com.tk.kmail.model.utils.ToastUtils
-import com.tk.kmail.mvp.Setting
+import com.tk.kmail.mvp.UserManager
 import com.tk.kmail.view.activity.Presenter
 import com.tk.kmail.view.adapter.UserAdapter
 import kotlinx.android.synthetic.main.include_recyclerview.*
@@ -19,7 +16,7 @@ import kotlinx.android.synthetic.main.layout_setting.*
 /**
  * Created by TangKai on 2018/12/21.
  */
-class UserManage : BaseFragment(), Setting.View {
+class UserManage : BaseFragment(), UserManager.View {
     override fun refreshUserList(arr: List<UserBean>) {
         var adapter: UserAdapter = recyclerView.adapter as UserAdapter
         adapter.list = arr.toMutableList()
@@ -34,7 +31,7 @@ class UserManage : BaseFragment(), Setting.View {
     }
 
     lateinit var binding: LayoutSettingBinding
-    override fun getPresenter(): Setting.Presenter {
+    override fun getPresenter(): UserManager.Presenter {
         return Presenter(this)
     }
 
@@ -58,9 +55,13 @@ class UserManage : BaseFragment(), Setting.View {
             mPresenter.refreshUserList()
 
         }
+
 //        println(mContentView)
 //        App.daoSession.userBeanDao.loadAll()
     }
 
 
 }
+
+
+

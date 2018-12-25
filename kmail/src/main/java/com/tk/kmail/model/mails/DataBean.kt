@@ -1,4 +1,4 @@
-package com.tk.kmail.model.bean
+package com.tk.kmail.model.mails
 
 import javax.mail.Message
 

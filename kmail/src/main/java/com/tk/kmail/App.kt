@@ -9,15 +9,16 @@ import com.tk.kmail.model.utils.ToastUtils
  * Created by TangKai on 2018/12/18.
  */
 class App : Application() {
-
     companion object {
         lateinit var daoSession: DaoSession
+        lateinit var context: App
     }
 
     override fun onCreate() {
         super.onCreate()
         ToastUtils.instance(this)
         initDao()
+        context = this
     }
 
     private fun initDao() {

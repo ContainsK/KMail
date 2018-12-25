@@ -14,7 +14,7 @@ abstract class BaseFragment : Fragment(), IBaseView {
     val mContentView: View? by lazy {
         var v: View? = getContentView()
         if (v == null && getLayoutId() > 0) {
-            v = LayoutInflater.from(getContext()).inflate(getLayoutId(), null)
+            v = LayoutInflater.from(context).inflate(getLayoutId(), null)
         }
         v
     }
@@ -28,10 +28,6 @@ abstract class BaseFragment : Fragment(), IBaseView {
         super.onViewCreated(view, savedInstanceState)
         println("onViewCreated")
         initView()
-    }
-
-    override fun getContext(): Context? {
-        return super<Fragment>.getContext()
     }
 
     override fun onStart() {
@@ -82,6 +78,11 @@ abstract class BaseFragment : Fragment(), IBaseView {
 
     override fun onDestroy() {
         super.onDestroy()
+        recycler()
         println("onDestroy")
+    }
+
+    override fun getContext(): Context? {
+        return super.getActivity()
     }
 }

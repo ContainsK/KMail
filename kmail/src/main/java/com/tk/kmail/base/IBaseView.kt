@@ -1,19 +1,11 @@
 package com.tk.kmail.base
 
-import android.app.Activity
+import android.app.ProgressDialog
 import android.content.Context
-import android.support.v4.app.Fragment
 import android.view.View
-import android.widget.Toast
+import com.tk.kmail.model.utils.Evs
 
-interface IBaseView : IViewDialog {
-    override fun showWaitingDialog() {
-        Toast.makeText(getContext(), "show", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun hideWaitingDialog() {
-        Toast.makeText(getContext(), "hide", Toast.LENGTH_SHORT).show()
-    }
+interface IBaseView : IBase.IContext {
 
     fun getAppTitle(): String {
         return ""
@@ -26,11 +18,30 @@ interface IBaseView : IViewDialog {
 
     fun getLayoutId(): Int
     fun initView()
-    fun getContext(): Context? {
-        if (this is Activity)
-            return this
-        if (this is Fragment)
-            return this.getContext()
-        return null
+
+    fun recycler() {
+        Evs.unreg(this)
+    }
+
+    fun getViewDialog(): IBase.IViewDialog {
+        return object : IBase.IViewDialog {
+            val p: ProgressDialog by lazy { ProgressDialog(getContext()) }
+            override fun showWaitingDialog() {
+                showWaitingDialog("加载中，请稍候...")
+            }
+
+            override fun getContext(): Context? {
+                return this@IBaseView.getContext()
+            }
+
+            override fun showWaitingDialog(text: String) {
+                p.apply { setMessage(text) }.show()
+            }
+
+            override fun hideWaitingDialog() {
+                p.dismiss()
+            }
+
+        }
     }
 }

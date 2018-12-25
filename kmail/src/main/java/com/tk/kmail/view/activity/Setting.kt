@@ -10,12 +10,12 @@ import com.tk.kmail.base.BasePresenter
 import com.tk.kmail.databinding.LayoutSettingBinding
 import com.tk.kmail.model.db_bean.UserBean
 import com.tk.kmail.model.utils.ToastUtils
-import com.tk.kmail.mvp.Setting
+import com.tk.kmail.mvp.UserManager
 import com.tk.kmail.view.adapter.UserAdapter
 import kotlinx.android.synthetic.main.include_recyclerview.*
 import kotlinx.android.synthetic.main.layout_setting.*
 
-class Setting : BaseActivity(), Setting.View {
+class Setting : BaseActivity(), UserManager.View {
     override fun refreshUserList(arr: List<UserBean>) {
         var adapter: UserAdapter = recyclerView.adapter as UserAdapter
         adapter.list = arr.toMutableList()
@@ -30,7 +30,7 @@ class Setting : BaseActivity(), Setting.View {
     }
 
     lateinit var binding: LayoutSettingBinding
-    override fun getPresenter(): Setting.Presenter {
+    override fun getPresenter(): UserManager.Presenter {
         return Presenter(this)
     }
 
@@ -60,7 +60,7 @@ class Setting : BaseActivity(), Setting.View {
 
 }
 
-class Presenter(mView: Setting.View) : BasePresenter<Setting.View>(mView), Setting.Presenter {
+class Presenter(mView: UserManager.View) : BasePresenter<UserManager.View>(mView), UserManager.Presenter {
     val daoBean: UserBeanDao = App.daoSession.userBeanDao
     override fun refreshUserList() {
         mView.refreshUserList(getUserList())

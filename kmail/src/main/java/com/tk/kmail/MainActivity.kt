@@ -2,8 +2,8 @@ package com.tk.kmail
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.tk.kmail.model.bean.ServerConfig
-import com.tk.kmail.model.utils.Mails
+import com.tk.kmail.model.mails.ServerConfig
+import com.tk.kmail.model.mails.Mails
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers

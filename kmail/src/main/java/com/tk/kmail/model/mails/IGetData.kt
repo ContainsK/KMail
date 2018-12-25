@@ -1,4 +1,4 @@
-package com.tk.kmail.model.bean
+package com.tk.kmail.model.mails
 
 /**
  * Created by TangKai on 2018/12/4.
