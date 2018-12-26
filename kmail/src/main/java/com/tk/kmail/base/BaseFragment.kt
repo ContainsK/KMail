@@ -6,6 +6,8 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 
 /**
  * Created by TangKai on 2018/12/17.
@@ -14,7 +16,7 @@ abstract class BaseFragment : Fragment(), IBaseView {
     val mContentView: View? by lazy {
         var v: View? = getContentView()
         if (v == null && getLayoutId() > 0) {
-            v = LayoutInflater.from(context).inflate(getLayoutId(), null)
+            v = LayoutInflater.from(getContext()).inflate(getLayoutId(), FrameLayout(getContext()), false)
         }
         v
     }

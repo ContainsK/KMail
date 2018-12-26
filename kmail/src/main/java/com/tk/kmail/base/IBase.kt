@@ -1,6 +1,7 @@
 package com.tk.kmail.base
 
 import android.content.Context
+import io.reactivex.disposables.Disposable
 
 /**
  * Created by TangKai on 2018/12/25.

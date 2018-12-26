@@ -5,14 +5,13 @@
     <data>
 
         <variable
-            name="user"
-            type="com.tk.kmail.model.db_bean.UserBean" />
+            name="data"
+            type="com.tk.kmail.model.mails.DataBean" />
     </data>
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
         android:background="@color/colorAccent"
         android:clickable="true"
         android:focusable="true"
@@ -24,29 +23,24 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_margin="10dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_title"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:text='@{user.username+" -> ("+user.descrip+")"}'
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text='@{data.title}'
                 android:textColor="@android:color/black"
                 android:textSize="18sp" />
 
-            <android.support.v7.widget.AppCompatButton
-                android:id="@+id/btn_login"
+            <TextView
+                android:id="@+id/tv_dec"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="登录" />
-
-            <android.support.v7.widget.AppCompatButton
-                android:id="@+id/btn_delete"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="删除" />
+                android:text="@{data.dec}" />
         </LinearLayout>
     </android.support.v7.widget.CardView>
 

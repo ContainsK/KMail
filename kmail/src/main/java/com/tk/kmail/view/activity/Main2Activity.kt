@@ -4,6 +4,7 @@ import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
+import android.view.Menu
 import android.view.MenuItem
 import com.tk.kmail.R
 import com.tk.kmail.base.BaseActivity
@@ -53,8 +54,14 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
             }
 
         }
+
+
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(if (nav_view.checkedItem?.itemId == R.id.nav_camera) R.menu.main2 else R.menu.selected, menu)
+        return true
+    }
 
 //    private lateinit var fragmentBegin: FragmentTransaction
 
@@ -95,6 +102,7 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
             R.id.nav_gallery -> {
                 fg = Project()
                 Snackbar.make(mContentView!!, "nav_gallery", Snackbar.LENGTH_SHORT).show()
+
             }
             R.id.nav_slideshow -> {
 
@@ -110,6 +118,7 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
             }
 
         }
+        invalidateOptionsMenu()
         drawer_layout.closeDrawer(GravityCompat.START)
         supportFragmentManager.beginTransaction().replace(R.id.layout_fragment, fg
                 ?: UserManage()).commit()

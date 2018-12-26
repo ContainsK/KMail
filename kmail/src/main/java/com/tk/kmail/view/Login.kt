@@ -1,5 +1,7 @@
 package com.tk.kmail.view
 
+import com.tk.kmail.App.Companion.mails
+import com.tk.kmail.App.Companion.userConfig
 import com.tk.kmail.model.db_bean.UserBean
 import com.tk.kmail.model.mails.Mails
 import com.tk.kmail.model.mails.ServerConfig
@@ -37,9 +39,6 @@ class LoginPresenter(override val mView: Login.View) : Login.Presenter {
 
         return Observable.just(1)
     }
-
-    private var userConfig: ServerConfig? = null
-    private var mails: Mails? = null
 
 
     @Subscribe

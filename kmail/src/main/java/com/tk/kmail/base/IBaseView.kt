@@ -3,7 +3,10 @@ package com.tk.kmail.base
 import android.app.ProgressDialog
 import android.content.Context
 import android.view.View
+import com.tk.kmail.R
 import com.tk.kmail.model.utils.Evs
+import io.reactivex.Observable
+import io.reactivex.Scheduler
 
 interface IBaseView : IBase.IContext {
 
@@ -44,4 +47,21 @@ interface IBaseView : IBase.IContext {
 
         }
     }
+
+
+    fun <T, R> Observable<T>.runUI(r: (T) -> R): Observable<R> {
+        return this.observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread()).map(r)
+    }
+
+    fun <T, R> Observable<T>.runIO(r: (T) -> R): Observable<R> {
+        return this.observeOn(io.reactivex.schedulers.Schedulers.io()).map(r)
+    }
+
+    fun <T, R> Observable<T>.run(scheduler: Scheduler, r: (T) -> R): Observable<R> {
+        Observable.just(1)
+        return this.observeOn(scheduler).map(r)
+    }
+
+
+
 }
