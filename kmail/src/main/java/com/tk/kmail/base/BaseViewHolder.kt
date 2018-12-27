@@ -1,4 +1,4 @@
-package com.tk.kmail.view.adapter
+package com.tk.kmail.base
 
 import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding

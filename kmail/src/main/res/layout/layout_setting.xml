@@ -2,87 +2,17 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
 
-        <variable
-            name="user"
-            type="com.tk.kmail.model.db_bean.UserBean" />
-    </data>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="10dp">
 
-        <LinearLayout
-            android:id="@+id/linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/til_desc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/tiet_desc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="别名"
-                    android:text="@={user.descrip}" />
-
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/til_username"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="vertical">
-
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/tiet_username"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="帐号"
-                    android:text="@={user.username}" />
-
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/til_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                app:passwordToggleContentDescription="@string/app_name">
-
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/tiet_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="密码"
-                    android:inputType="textPassword"
-                    android:text="@={user.password}" />
-
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.v7.widget.AppCompatCheckBox
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginTop="10dp"
-                android:checked="@{user!=null}"
-                android:text="是否保存" />
-        </LinearLayout>
-
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefresh"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/linearLayout">
+            android:layout_height="match_parent">
 
             <include
                 layout="@layout/include_recyclerview"
@@ -90,19 +20,7 @@
                 android:layout_height="match_parent" />
         </android.support.v4.widget.SwipeRefreshLayout>
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/floatingActionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_margin="10dp"
-            android:background="@color/colorPrimary"
-            app:srcCompat="@drawable/ic_menu_send2"
-            app:borderWidth="1dp"
-            app:elevation="8dp"
-            app:pressedTranslationZ="16dp"
-            app:rippleColor="#33728dff" />
+
 
     </RelativeLayout>
 </layout>

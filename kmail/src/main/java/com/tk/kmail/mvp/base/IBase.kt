@@ -16,4 +16,8 @@ class IBase private constructor() {
         val mView: T
 
     }
+
+    interface Result<T> {
+        fun callResult(result: T)
+    }
 }

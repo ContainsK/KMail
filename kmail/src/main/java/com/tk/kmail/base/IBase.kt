@@ -8,7 +8,7 @@ import io.reactivex.disposables.Disposable
  */
 class IBase private constructor() {
     interface IContext {
-        fun getContext(): Context?
+        fun getThisContext(): Context?
     }
 
     interface IViewDialog : IContext {

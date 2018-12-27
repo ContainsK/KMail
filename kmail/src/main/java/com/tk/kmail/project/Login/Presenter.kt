@@ -1,7 +1,6 @@
-package com.tk.kmail.view
+package com.tk.kmail.project.Login
 
-import com.tk.kmail.App.Companion.mails
-import com.tk.kmail.App.Companion.userConfig
+import com.tk.kmail.App
 import com.tk.kmail.model.db_bean.UserBean
 import com.tk.kmail.model.mails.Mails
 import com.tk.kmail.model.mails.ServerConfig
@@ -13,24 +12,18 @@ import io.reactivex.schedulers.Schedulers
 import org.greenrobot.eventbus.Subscribe
 
 /**
- * Created by TangKai on 2018/12/24.
+ * Created by TangKai on 2018/12/27.
  */
-interface LoginView : Login.View {
-    override fun getPresenter(): Login.Presenter {
-        return LoginPresenter(this)
-    }
-}
-
-class LoginPresenter(override val mView: Login.View) : Login.Presenter {
+class Presenter(override val mView: Login.View) : Login.Presenter {
     override fun loginOut(): Observable<*> {
-        if (mails != null) {
+        if (App.mails != null) {
             return Observable.just(1)
                     .observeOn(AndroidSchedulers.mainThread())
                     .map { mView.showWaitingDialog("正在退出...") }
                     .observeOn(Schedulers.io())
                     .map {
-                        mails?.closeConnected() ?: println("还未登录...")
-                        mails = null
+                        App.mails?.closeConnected() ?: println("还未登录...")
+                        App.mails = null
                     }
                     .observeOn(AndroidSchedulers.mainThread()).map {
                         mView.hideWaitingDialog()
@@ -50,9 +43,9 @@ class LoginPresenter(override val mView: Login.View) : Login.Presenter {
                 }
                 .observeOn(Schedulers.io())
                 .map {
-                    userConfig = ServerConfig(bean.username, bean.password)
-                    mails = Mails(userConfig!!)
-                    mails!!.connected()
+                    App.userConfig = ServerConfig(bean.username, bean.password)
+                    App.mails = Mails(App.userConfig!!)
+                    App.mails!!.connected()
                 }
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())

@@ -1,8 +1,9 @@
-package com.tk.kmail.view.adapter
+package com.tk.kmail.project.UserManager
 
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.tk.kmail.R
+import com.tk.kmail.base.BaseViewHolder
 import com.tk.kmail.databinding.LayoutItemUsersBinding
 import com.tk.kmail.model.db_bean.UserBean
 import com.tk.kmail.model.utils.Evs

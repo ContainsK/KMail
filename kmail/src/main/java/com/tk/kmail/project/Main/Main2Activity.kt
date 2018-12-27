@@ -1,5 +1,6 @@
-package com.tk.kmail.view.activity
+package com.tk.kmail.project.Main
 
+import android.app.Dialog
 import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
@@ -10,10 +11,13 @@ import com.tk.kmail.R
 import com.tk.kmail.base.BaseActivity
 import com.tk.kmail.base.BaseFragment
 import com.tk.kmail.base.IBase
+import com.tk.kmail.databinding.LayoutAddUserBinding
 import com.tk.kmail.model.db_bean.UserBean
+import com.tk.kmail.model.utils.BindingUtils
 import com.tk.kmail.model.utils.Evs
-import com.tk.kmail.view.fragment.Project
-import com.tk.kmail.view.fragment.UserManage
+import com.tk.kmail.model.utils.ToastUtils
+import com.tk.kmail.mvp.UserManager
+import com.tk.kmail.project.UserManager.View
 import kotlinx.android.synthetic.main.activity_main2.*
 import kotlinx.android.synthetic.main.app_bar_main2.*
 import kotlinx.android.synthetic.main.nav_header_main2.*
@@ -24,6 +28,7 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
     override fun getLayoutId(): Int {
         return R.layout.activity_main2
     }
+
 
     override fun initView() {
         setSupportActionBar(toolbar)
@@ -38,7 +43,7 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
 //        Evs.reg(this)
 
 
-        object : com.tk.kmail.view.LoginView, IBase.IViewDialog by getViewDialog() {
+        object : com.tk.kmail.project.Login.View(), IBase.IViewDialog by getViewDialog() {
             override fun loginResult(bean: UserBean?, b: Boolean) {
                 Snackbar.make(mContentView!!, "登录：$b", Snackbar.LENGTH_SHORT).show()
                 if (b) {
@@ -85,9 +90,31 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         when (item.itemId) {
-            R.id.action_settings -> return true
-            else -> return super.onOptionsItemSelected(item)
+            R.id.action_add_user -> {
+
+                Dialog(getThisContext(), R.style.CsDialog).apply {
+
+                    val bind = BindingUtils.bind<LayoutAddUserBinding>(context, R.layout.layout_add_user)
+                    bind.user = UserBean()
+                    bind.tilPassword.isPasswordVisibilityToggleEnabled = true
+                    setContentView(bind.root)
+                    show()
+                    window.attributes = window.attributes.apply { width = mContentView!!.width }
+
+                    bind.floatingActionButton.setOnClickListener {
+                        val str = View::class.java.name
+                        val v: UserManager.View = supportFragmentManager.findFragmentByTag(str) as View
+                        v.mPresenter.addUser(bind.user!!)
+                        dismiss()
+                    }
+
+                }
+            }
+            R.id.action_add -> {
+                ToastUtils.show("添加")
+            }
         }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -96,11 +123,11 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
         when (item.itemId) {
             R.id.nav_camera -> {
                 // Handle the camera action
-                fg = UserManage()
+                fg = View()
                 Snackbar.make(mContentView!!, "nav_camera", Snackbar.LENGTH_SHORT).show()
             }
             R.id.nav_gallery -> {
-                fg = Project()
+                fg = com.tk.kmail.project.ProjectManager.View()
                 Snackbar.make(mContentView!!, "nav_gallery", Snackbar.LENGTH_SHORT).show()
 
             }
@@ -121,7 +148,7 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
         invalidateOptionsMenu()
         drawer_layout.closeDrawer(GravityCompat.START)
         supportFragmentManager.beginTransaction().replace(R.id.layout_fragment, fg
-                ?: UserManage()).commit()
+                ?: View(), fg?.javaClass?.name).commit()
         return true
     }
 
