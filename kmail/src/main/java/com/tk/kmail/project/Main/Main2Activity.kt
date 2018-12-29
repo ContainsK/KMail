@@ -1,6 +1,7 @@
 package com.tk.kmail.project.Main
 
 import android.app.Dialog
+import android.content.Intent
 import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
@@ -15,14 +16,18 @@ import com.tk.kmail.databinding.LayoutAddUserBinding
 import com.tk.kmail.model.db_bean.UserBean
 import com.tk.kmail.model.utils.BindingUtils
 import com.tk.kmail.model.utils.Evs
-import com.tk.kmail.model.utils.ToastUtils
+import com.tk.kmail.mvp.Login
 import com.tk.kmail.mvp.UserManager
+import com.tk.kmail.mvp.base.ResultBean
 import com.tk.kmail.project.UserManager.View
 import kotlinx.android.synthetic.main.activity_main2.*
-import kotlinx.android.synthetic.main.app_bar_main2.*
+import kotlinx.android.synthetic.main.include_appbar.*
 import kotlinx.android.synthetic.main.nav_header_main2.*
 
-class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
+class Main2Activity : BaseActivity<com.tk.kmail.mvp.base.IBase.View<com.tk.kmail.mvp.base.IBase.Presenter<*>>>(), NavigationView.OnNavigationItemSelectedListener {
+    override fun getViewP(): com.tk.kmail.mvp.base.IBase.View<com.tk.kmail.mvp.base.IBase.Presenter<*>> {
+        return null!!
+    }
 
 
     override fun getLayoutId(): Int {
@@ -36,31 +41,61 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
+
+
 //        fragmentBegin = supportFragmentManager.beginTransaction()
         nav_view.setNavigationItemSelectedListener(this)
         nav_view.setCheckedItem(R.id.nav_camera)
         onNavigationItemSelected(nav_view.checkedItem!!)
 //        Evs.reg(this)
-
+        val icon = toolbar.navigationIcon
+        val listener = {
+            val b = supportFragmentManager.backStackEntryCount > 0
+            supportActionBar!!.setDisplayHomeAsUpEnabled(b)
+            if (!b) {
+                toolbar.navigationIcon = icon
+                toolbar.setNavigationOnClickListener {
+                    drawer_layout.openDrawer(GravityCompat.START)
+                }
+            } else {
+                toolbar.setNavigationOnClickListener {
+                    onBackPressed()
+                }
+            }
+        }
+        supportFragmentManager.addOnBackStackChangedListener(listener)
+        supportFragmentManager.removeOnBackStackChangedListener(listener)
 
         object : com.tk.kmail.project.Login.View(), IBase.IViewDialog by getViewDialog() {
-            override fun loginResult(bean: UserBean?, b: Boolean) {
-                Snackbar.make(mContentView!!, "登录：$b", Snackbar.LENGTH_SHORT).show()
-                if (b) {
-                    tv_name.text = bean?.descrip ?: "无名"
-                    tv_email.text = bean?.username ?: "错误数据"
-                }
-
-
-            }
 
             init {
                 Evs.reg(mPresenter)
             }
 
+            override fun callResult(result: ResultBean) {
+
+                when (result.type) {
+                    Login.TYPE_LOGIN -> {
+                        Snackbar.make(mContentView!!, "登录 ${result.status}", Snackbar.LENGTH_SHORT).show()
+                        if (result.status) {
+                            val aResult = result.getAResult<UserBean>()
+                            tv_name.text = aResult?.descrip ?: "无名"
+                            tv_email.text = aResult?.username ?: "错误数据"
+                            return
+                        }
+                    }
+                    Login.TYPE_OUT -> {
+                        tv_name.text = "未登录"
+                        tv_email.text = "未登录"
+                    }
+
+                }
+
+
+            }
+
+
         }
-
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -74,6 +109,8 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             drawer_layout.closeDrawer(GravityCompat.START)
+        } else if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStack()
         } else {
             super.onBackPressed()
         }
@@ -95,7 +132,10 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
                 Dialog(getThisContext(), R.style.CsDialog).apply {
 
                     val bind = BindingUtils.bind<LayoutAddUserBinding>(context, R.layout.layout_add_user)
-                    bind.user = UserBean()
+                    val b = UserBean()
+                    b.username = "fgbqahzuk46430@qq.com"
+                    b.password = "xfdtpevgqgvpjdeg"
+                    bind.user = b
                     bind.tilPassword.isPasswordVisibilityToggleEnabled = true
                     setContentView(bind.root)
                     show()
@@ -111,7 +151,7 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
                 }
             }
             R.id.action_add -> {
-                ToastUtils.show("添加")
+                startActivity(Intent(getThisContext(), com.tk.kmail.project.Message.Add.View::class.java))
             }
         }
         return super.onOptionsItemSelected(item)
@@ -119,16 +159,14 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
-        var fg: BaseFragment? = null
+        var fg: BaseFragment<*>? = null
         when (item.itemId) {
             R.id.nav_camera -> {
                 // Handle the camera action
                 fg = View()
-                Snackbar.make(mContentView!!, "nav_camera", Snackbar.LENGTH_SHORT).show()
             }
             R.id.nav_gallery -> {
                 fg = com.tk.kmail.project.ProjectManager.View()
-                Snackbar.make(mContentView!!, "nav_gallery", Snackbar.LENGTH_SHORT).show()
 
             }
             R.id.nav_slideshow -> {
@@ -147,9 +185,13 @@ class Main2Activity : BaseActivity(), NavigationView.OnNavigationItemSelectedLis
         }
         invalidateOptionsMenu()
         drawer_layout.closeDrawer(GravityCompat.START)
+        for (v in 1..supportFragmentManager.backStackEntryCount) {
+            supportFragmentManager.popBackStack()
+        }
         supportFragmentManager.beginTransaction().replace(R.id.layout_fragment, fg
                 ?: View(), fg?.javaClass?.name).commit()
         return true
     }
+
 
 }

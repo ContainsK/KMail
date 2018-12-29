@@ -6,10 +6,8 @@ import android.content.Context
 import android.support.v4.app.Fragment
 import android.view.View
 import com.tk.kmail.model.utils.Evs
-import io.reactivex.Observable
-import io.reactivex.Scheduler
 
-interface IBaseView : IBase.IContext {
+interface IBaseView<T : com.tk.kmail.mvp.base.IBase.View<*>> : IBase.IContext {
 
     fun getAppTitle(): String {
         return ""
@@ -19,6 +17,7 @@ interface IBaseView : IBase.IContext {
         return null
     }
 
+    fun getViewP(): T
 
     fun getLayoutId(): Int
     fun initView()
@@ -55,19 +54,6 @@ interface IBaseView : IBase.IContext {
         if (this is Fragment)
             return this.context
         return null
-    }
-
-    fun <T, R> Observable<T>.runUI(r: (T) -> R): Observable<R> {
-        return this.observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread()).map(r)
-    }
-
-    fun <T, R> Observable<T>.runIO(r: (T) -> R): Observable<R> {
-        return this.observeOn(io.reactivex.schedulers.Schedulers.io()).map(r)
-    }
-
-    fun <T, R> Observable<T>.run(scheduler: Scheduler, r: (T) -> R): Observable<R> {
-        Observable.just(1)
-        return this.observeOn(scheduler).map(r)
     }
 
 

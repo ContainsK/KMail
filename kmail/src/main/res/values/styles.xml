@@ -21,4 +21,12 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="count_over_text" parent="Base.TextAppearance.AppCompat.Light.Widget.PopupMenu.Small">
+        <item name="android:textColor">#1310d6</item>
+    </style>
+
+    <style name="count_text" parent="Base.TextAppearance.AppCompat.Light.Widget.PopupMenu.Small">>
+        <item name="android:textColor">#d6105f</item>
+    </style>
+
 </resources>

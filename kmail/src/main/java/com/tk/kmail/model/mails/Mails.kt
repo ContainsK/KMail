@@ -110,6 +110,14 @@ class Mails(val server: IServer) {
         }
     }
 
+    fun isConnected(): Boolean {
+        if (store == null || !store.isConnected)
+            return false
+        if (transport == null || !transport.isConnected)
+            return false
+        return true
+    }
+
     fun connected(): Boolean {
         try {
             if (!store.isConnected)
@@ -167,6 +175,11 @@ class Mails(val server: IServer) {
             folder.close(true)
     }
 
+    fun refreshFolder(folder: Folder): Folder? {
+        closeFolder(folder)
+        return openFolder(folder)
+    }
+
     fun renameFolder(folder: Folder, name: String) {
         folder.renameTo(folder.parent.getFolder(name))
     }
@@ -195,18 +208,22 @@ class Mails(val server: IServer) {
         val mimeMessage = MimeMessage(mSession).apply {
             setFrom(InternetAddress("ppx@ppx.com", "TanX"))
             //mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(username));
-            setSubject(msg.msgTitle)
+            setSubject(msg.getMsgTitle())
             setHeader(KEY_HEAD_CONTENT, MimeUtility.fold(9,
-                    MimeUtility.encodeText(msg.msgContent, null, null)))
+                    MimeUtility.encodeText(DesUtil.encrypt(msg.getMsgContent()), null, null)))
             setHeader(KEY_HEAD_DESCRIBE, MimeUtility.fold(9,
-                    MimeUtility.encodeText(msg.msgDescribe, null, null)))
+                    MimeUtility.encodeText(msg.getMsgDescribe(), null, null)))
             setSentDate(Date())
             setContent(DesUtil.encrypt("who are you ?"), "text/application")
             //smtpTran.sendMessage(mimeMessage,new Address[]{new InternetAddress(username, "Tan33")});
 
         }
         folder.appendMessages(arrayOf(mimeMessage))
-        println("新发送的UID：" + (folder as IMAPFolder).getUID(mimeMessage))
+//        println("新发送的UID：" + (folder as IMAPFolder).getUID(mimeMessage))
+    }
+
+    fun getFolderList(): Array<out Folder> {
+        return store.defaultFolder.list()
     }
 
     fun getFetchProfile(): FetchProfile {
@@ -225,7 +242,7 @@ class Mails(val server: IServer) {
         val folder = msg.folder as IMAPFolder
         val dataBean = DataBean().apply {
             title = msg.subject
-            content = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_CONTENT)[0]))
+            content = DesUtil.decrypt(MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_CONTENT)[0])))
             dec = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_DESCRIBE)[0]))
             sendTime = msg.getReceivedDate().toString()
             this.msg = msg

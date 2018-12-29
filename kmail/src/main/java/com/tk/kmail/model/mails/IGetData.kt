@@ -1,19 +1,21 @@
 package com.tk.kmail.model.mails
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
 /**
  * Created by TangKai on 2018/12/4.
  */
 
 interface IGetData {
-    val msgId: String
 
-    val msgContent: String
+    //    fun getMsgId(): String
+    fun getMsgContent(): String
 
-    val msgDescribe: String
+    fun getMsgDescribe(): String
+    fun getMsgTitle(): String
+//    fun getMsgTime(): String
+//    fun getMsgFrom(): String
 
-    val msgTitle: String
 
-    val msgTime: String
-
-    val msgFrom: String
 }

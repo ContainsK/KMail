@@ -7,18 +7,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.LinearLayout
+import com.tk.kmail.mvp.base.IBase
 
 /**
  * Created by TangKai on 2018/12/17.
  */
-abstract class BaseFragment : Fragment(), IBaseView {
+abstract class BaseFragment<T : IBase.View<*>> : Fragment(), IBaseView<T> {
     val mContentView: View? by lazy {
         var v: View? = getContentView()
         if (v == null && getLayoutId() > 0) {
             v = LayoutInflater.from(getThisContext()).inflate(getLayoutId(), FrameLayout(getThisContext()), false)
         }
         v
+    }
+    val mViewP: T by lazy {
+        getViewP()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -80,8 +83,11 @@ abstract class BaseFragment : Fragment(), IBaseView {
 
     override fun onDestroy() {
         super.onDestroy()
-        recycler()
         println("onDestroy")
+        mViewP?.callRecycler()
+        mViewP?.mPresenter.callRecycler()
+        recycler()
+
     }
 
 

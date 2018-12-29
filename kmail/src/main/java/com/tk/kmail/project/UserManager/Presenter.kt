@@ -5,7 +5,7 @@ import com.tk.kmail.App
 import com.tk.kmail.base.BasePresenter
 import com.tk.kmail.model.db_bean.UserBean
 import com.tk.kmail.mvp.UserManager
-import com.tk.kmail.mvp.base.ResuleBean
+import com.tk.kmail.mvp.base.ResultBean
 
 /**
  * Created by TangKai on 2018/12/27.
@@ -18,7 +18,7 @@ class Presenter(mView: UserManager.View) : BasePresenter<UserManager.View>(mView
 
     override fun deleteUser(user: UserBean) {
         daoBean.delete(user)
-        mView.callResult(ResuleBean(UserManager.TYPE_DELETE, user))
+        mView.callResult(ResultBean(UserManager.TYPE_DELETE, result = user))
     }
 
     override fun getUserList(): List<UserBean> {
@@ -27,6 +27,6 @@ class Presenter(mView: UserManager.View) : BasePresenter<UserManager.View>(mView
 
     override fun addUser(user: UserBean) {
         daoBean.save(user)
-        mView.callResult(ResuleBean(UserManager.TYPE_ADD, user))
+        mView.callResult(ResultBean(UserManager.TYPE_ADD, result = user))
     }
 }

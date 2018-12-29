@@ -1,36 +1,44 @@
-package com.tk.kmail.project.ProjectManager
+package com.tk.kmail.project.Message
 
 import android.annotation.SuppressLint
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
 import com.tk.kmail.App
 import com.tk.kmail.R
 import com.tk.kmail.base.BaseFragment
 import com.tk.kmail.base.IBase
+import com.tk.kmail.model.mails.DataBean
 import com.tk.kmail.model.utils.Evs
 import com.tk.kmail.model.utils.ToastUtils
-import com.tk.kmail.mvp.ProjectMng
+import com.tk.kmail.mvp.Message
 import com.tk.kmail.mvp.base.ResultBean
 import kotlinx.android.synthetic.main.include_recyclerview.*
 import kotlinx.android.synthetic.main.include_swipe_recyclerview.*
-import javax.mail.Folder
 
 @SuppressLint("ValidFragment")
 /**
  * Created by TangKai on 2018/12/27.
  */
-class View : BaseFragment<ProjectMng.View>() {
-    override fun getViewP(): ProjectMng.View {
-        return object : ProjectMng.View, IBase.IViewDialog by getViewDialog() {
-            override fun refreshList(list: MutableList<Folder>) {
-                this@View.recyclerView.adapter = PAdapter(list, this@View)
+class View : BaseFragment<Message.View>() {
+
+    override fun getViewP(): Message.View {
+        return object : Message.View, IBase.IViewDialog by getViewDialog() {
+            override fun refreshList(list: MutableList<DataBean>) {
+                this@View.recyclerView.adapter = MessageAdapter(list, this)
             }
 
-
-            override fun getPresenter(): ProjectMng.Presenter {
+            override fun getPresenter(): Message.Presenter {
                 return Presenter(this)
             }
 
             override fun callResult(result: ResultBean) {
+                when (result.type) {
+                    Message.TYPE_DELETE -> {
+                        Snackbar.make(mContentView!!, "删除：${result.status}", Snackbar.LENGTH_SHORT).show()
+                        refresh()
+                    }
+                }
+
             }
 
         }
@@ -46,6 +54,11 @@ class View : BaseFragment<ProjectMng.View>() {
             refresh()
             swipeRefresh.isRefreshing = false
         }
+
+    }
+
+    override fun onStart() {
+        super.onStart()
         refresh()
     }
 
@@ -54,11 +67,11 @@ class View : BaseFragment<ProjectMng.View>() {
             ToastUtils.show("还未登录...")
             return
         }
-        mViewP.mPresenter.refreshList()
+        mViewP.mPresenter.refreshList(mViewP.mPresenter.getFolder())
     }
 
     override fun recycler() {
-        Evs.a.removeStickyEvent(Folder::javaClass)
+        Evs.a.removeStickyEvent(mViewP::javaClass)
         super.recycler()
     }
 

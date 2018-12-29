@@ -2,7 +2,7 @@ package com.tk.kmail.mvp
 
 import com.tk.kmail.model.db_bean.UserBean
 import com.tk.kmail.mvp.base.IBase
-import com.tk.kmail.mvp.base.ResuleBean
+import com.tk.kmail.mvp.base.ResultBean
 
 /**
  * Created by TangKai on 2018/12/14.
@@ -14,7 +14,7 @@ class UserManager private constructor() {
         val TYPE_UPDATE = 0x03
     }
 
-    interface View : IBase.View<Presenter>, IBase.Result<ResuleBean> {
+    interface View : IBase.View<Presenter>, IBase.Result<ResultBean> {
         fun refreshUserList(arr: List<UserBean>)
     }
 

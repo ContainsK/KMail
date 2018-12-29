@@ -6,6 +6,7 @@ import com.tk.kmail.model.mails.Mails
 import com.tk.kmail.model.mails.ServerConfig
 import com.tk.kmail.model.utils.Evs
 import com.tk.kmail.mvp.Login
+import com.tk.kmail.mvp.base.ResultBean
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -27,7 +28,9 @@ class Presenter(override val mView: Login.View) : Login.Presenter {
                     }
                     .observeOn(AndroidSchedulers.mainThread()).map {
                         mView.hideWaitingDialog()
+                        mView.callResult(ResultBean(Login.TYPE_OUT, true, 0))
                     }
+                    .doOnError { mView.hideWaitingDialog() }
         }
 
         return Observable.just(1)
@@ -50,10 +53,16 @@ class Presenter(override val mView: Login.View) : Login.Presenter {
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    mView.loginResult(bean, it)
+                    if (!it)
+                        App.mails = null
+                    mView.callResult(ResultBean(Login.TYPE_LOGIN,
+                            it
+                            , bean))
                 }, {
                     it.printStackTrace()
-                    mView.loginResult(bean, false)
+                    mView.callResult(ResultBean(Login.TYPE_LOGIN,
+                            false
+                            , bean))
                 }, {
                     mView.hideWaitingDialog()
                 })
