@@ -1,11 +1,15 @@
 package com.tk.kmail.project.ProjectManager
 
 import android.annotation.SuppressLint
+import android.support.design.widget.Snackbar
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
+import android.widget.EditText
 import com.tk.kmail.App
 import com.tk.kmail.R
 import com.tk.kmail.base.BaseFragment
 import com.tk.kmail.base.IBase
+import com.tk.kmail.model.eventbus.EventBusBean
 import com.tk.kmail.model.utils.Evs
 import com.tk.kmail.model.utils.ToastUtils
 import com.tk.kmail.mvp.ProjectMng
@@ -31,6 +35,16 @@ class View : BaseFragment<ProjectMng.View>() {
             }
 
             override fun callResult(result: ResultBean) {
+                when (result.type) {
+                    ProjectMng.TYPE_PROJECT_ADD -> {
+                        Snackbar.make(mContentView!!, "创建：${result.status}", Snackbar.LENGTH_SHORT).show()
+                        refresh()
+                    }
+                    ProjectMng.TYPE_PROJECT_DELETE -> {
+                        Snackbar.make(mContentView!!, "删除：${result.status}", Snackbar.LENGTH_SHORT).show()
+                        refresh()
+                    }
+                }
             }
 
         }
@@ -47,6 +61,17 @@ class View : BaseFragment<ProjectMng.View>() {
             swipeRefresh.isRefreshing = false
         }
         refresh()
+        Evs.a.post(EventBusBean.EventMenu(R.menu.add_project) {
+            AlertDialog.Builder(getThisContext()!!).apply {
+                val v = EditText(getThisContext())
+                setView(v)
+                setTitle("创建新的项目：")
+                setPositiveButton("确定") { a, b ->
+                    a.dismiss()
+                    mViewP.mPresenter.createFolder(v.text.toString())
+                }
+            }.show()
+        })
     }
 
     private fun refresh() {

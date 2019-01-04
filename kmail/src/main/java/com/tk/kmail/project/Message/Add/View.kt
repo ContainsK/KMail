@@ -1,7 +1,9 @@
 package com.tk.kmail.project.Message.Add
 
+import android.annotation.SuppressLint
 import android.databinding.DataBindingUtil
 import android.support.design.widget.Snackbar
+import android.view.View
 import android.widget.EditText
 import com.tk.kmail.R
 import com.tk.kmail.base.BaseActivity
@@ -45,6 +47,7 @@ class View : BaseActivity<Message.AddMessageView>() {
         this.data = data
     }
 
+    @SuppressLint("RestrictedApi")
     override fun initView() {
         setSupportActionBar(toolbar)
         Evs.reg(this)
@@ -61,8 +64,7 @@ class View : BaseActivity<Message.AddMessageView>() {
             val bind = DataBindingUtil.bind<LayoutAddMessageBinding>(mContentView)
             bind.data = data
             bind.isRead = isR
-
-
+            floatingActionButton.visibility = View.GONE
         }
 
 
@@ -76,6 +78,7 @@ class View : BaseActivity<Message.AddMessageView>() {
         floatingActionButton.setOnClickListener {
             val p = mViewP.mPresenter
             p.sendMessage(p.getFolder(), object : IGetData {
+
                 override fun getMsgContent(): String {
                     return tiet_content.text.toString()
                 }
@@ -91,7 +94,7 @@ class View : BaseActivity<Message.AddMessageView>() {
                     return tiet_title.text.toString()
                 }
 
-            })
+            }, intent.getStringExtra("pass"))
         }
     }
 

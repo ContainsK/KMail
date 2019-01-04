@@ -15,21 +15,11 @@ import javax.mail.Folder
  */
 class Presenter(override val mView: Message.View) : Message.Presenter {
     override fun deleteMessage(msg: javax.mail.Message) {
-        Observable.just(1)
-                .runUI {
-                    mView.showWaitingDialog("删除中...")
-                }.runIO {
-                    App.mails!!.deleteMessage(msg)
-                }
-                .runUI {
-                }.subscribe({
-                    mView.hideWaitingDialog()
-                    mView.callResult(ResultBean(Message.TYPE_DELETE, true, msg))
-                }, {
-                    it.printStackTrace()
-                    mView.hideWaitingDialog()
-                    mView.callResult(ResultBean(Message.TYPE_DELETE, false, msg))
-                })
+        mView.runDialog("删除中...") {
+            App.mails!!.deleteMessage(msg)
+        }.doOnError {
+            mView.callResult(ResultBean(Message.TYPE_DELETE, false, msg))
+        }.runUI { mView.callResult(ResultBean(Message.TYPE_DELETE, true, msg)) }.subscribe()
 
 
     }
@@ -54,24 +44,13 @@ class Presenter(override val mView: Message.View) : Message.Presenter {
         return email.openFolder("Abcd")
     }
 
-    override fun refreshList(folder: Folder) {
-        Observable.just(1)
-                .runUI {
-                    mView.showWaitingDialog()
-                }.runIO {
-                    getMessageArrs(App.mails!!.refreshFolder(folder)!!)
-                }
-                .runUI {
-                    mView.refreshList(it)
-                }.subscribe({
-                    mView.hideWaitingDialog()
-                }, {
-                    it.printStackTrace()
-                    mView.hideWaitingDialog()
-                })
+    override fun refreshList(folder: Folder, password: String) {
+        mView.runDialog {
+            getMessageArrs(App.mails!!.refreshFolder(folder)!!, password)
+        }.subscribe { mView.refreshList(it) }
     }
 
-    override fun getMessageArrs(folder: Folder): MutableList<DataBean> {
+    override fun getMessageArrs(folder: Folder, password: String): MutableList<DataBean> {
         val email = App.mails!!
         val dataBeans = mutableListOf<DataBean>()
         if (folder != null) {
@@ -79,7 +58,7 @@ class Presenter(override val mView: Message.View) : Message.Presenter {
             folder.fetch(messages, email.getFetchProfile())
             for (v in messages) {
                 val msg = v as IMAPMessage
-                val dataBean = email.parseMessage(msg)
+                val dataBean = email.parseMessage(msg, password)
                 println(dataBean)
                 dataBeans.add(dataBean)
             }

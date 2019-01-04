@@ -36,7 +36,7 @@ class MessageAdapter(var list: MutableList<DataBean>, val vp: Message.View) : Re
         p0.itemView.setOnLongClickListener {
 
             AlertDialog.Builder(it.context).apply {
-                setMessage("是否删除该条数据？")
+                setMessage("是否删除 ${list[p1].title} ？")
                 setNegativeButton("否", { msg, w ->
                     msg.dismiss()
 

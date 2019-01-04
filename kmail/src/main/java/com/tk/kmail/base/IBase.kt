@@ -13,13 +13,17 @@ class IBase private constructor() {
         fun getThisContext(): Context?
     }
 
+    interface IRecycler {
+        fun recycler()
+    }
+
     interface IViewDialog : IContext {
         fun showWaitingDialog()
         fun showWaitingDialog(text: String)
         fun hideWaitingDialog()
 
 
-        fun runDialog(t: String?, v: () -> Unit): Observable<*> {
+        fun <T> runDialog(t: String? = null, v: () -> T): Observable<T> {
             return Observable.just(1)
                     .observeOn(AndroidSchedulers.mainThread())
                     .map {
@@ -39,5 +43,6 @@ class IBase private constructor() {
                     }
 
         }
+
     }
 }

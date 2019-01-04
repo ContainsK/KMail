@@ -1,17 +1,24 @@
 package com.tk.kmail.project.Message
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Intent
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import com.tk.kmail.App
 import com.tk.kmail.R
 import com.tk.kmail.base.BaseFragment
 import com.tk.kmail.base.IBase
+import com.tk.kmail.model.eventbus.EventBusBean
 import com.tk.kmail.model.mails.DataBean
 import com.tk.kmail.model.utils.Evs
 import com.tk.kmail.model.utils.ToastUtils
 import com.tk.kmail.mvp.Message
 import com.tk.kmail.mvp.base.ResultBean
+import com.tk.kmail.project.Message.Add.View
+import kotlinx.android.synthetic.main.include_edittext.view.*
 import kotlinx.android.synthetic.main.include_recyclerview.*
 import kotlinx.android.synthetic.main.include_swipe_recyclerview.*
 
@@ -48,12 +55,41 @@ class View : BaseFragment<Message.View>() {
         return R.layout.include_swipe_recyclerview
     }
 
+    private lateinit var pass: String
+
     override fun initView() {
         recyclerView.layoutManager = LinearLayoutManager(getThisContext())
         swipeRefresh.setOnRefreshListener {
             refresh()
             swipeRefresh.isRefreshing = false
         }
+        Evs.a.post(EventBusBean.EventMenu(R.menu.add_message) {
+            startActivity(Intent(getThisContext(), View::class.java).apply { putExtra("pass", pass) })
+        })
+
+        AlertDialog.Builder(getThisContext()).apply {
+            //                    setMessage()
+//                    setTitle("输入密码")
+            val v = LayoutInflater.from(context).inflate(R.layout.include_edittext, mContentView as ViewGroup, false)
+
+
+            v.tiet_text.setHint("输入密码")
+            v.tv_title.text = "请输入密码："
+            setView(v)
+
+            setPositiveButton("确定") { a, b ->
+                pass = v.tiet_text.text.toString()
+                refresh()
+                a.dismiss()
+            }
+            setNegativeButton("取消") { a, b ->
+                a.dismiss()
+                fragmentManager!!.popBackStack()
+            }
+
+            setCancelable(false)
+
+        }.show()
 
     }
 
@@ -63,11 +99,13 @@ class View : BaseFragment<Message.View>() {
     }
 
     private fun refresh() {
+        if (!::pass.isInitialized)
+            return
         if (App.mails == null) {
             ToastUtils.show("还未登录...")
             return
         }
-        mViewP.mPresenter.refreshList(mViewP.mPresenter.getFolder())
+        mViewP.mPresenter.refreshList(mViewP.mPresenter.getFolder(), pass)
     }
 
     override fun recycler() {

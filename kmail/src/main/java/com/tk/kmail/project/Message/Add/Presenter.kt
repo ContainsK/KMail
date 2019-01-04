@@ -14,13 +14,13 @@ import javax.mail.Folder
  * Created by TangKai on 2018/12/29.
  */
 class Presenter(override val mView: Message.AddMessageView) : Message.AddMessagePresenter {
-    override fun sendMessage(folder: Folder, bean: IGetData) {
+    override fun sendMessage(folder: Folder, bean: IGetData, password: String) {
         Observable.just(1)
                 .runUI {
                     mView.showWaitingDialog("保存中，请稍候...")
                 }.runIO {
                     val app = App.mails!!
-                    app.sendMessage(app.openFolder(folder)!!, bean)
+                    app.sendMessage(app.openFolder(folder)!!, bean, password)
                 }.observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     mView.hideWaitingDialog()

@@ -19,5 +19,9 @@
         android:orderInCategory="100"
         android:title="添加项目"
         app:showAsAction="never" />
-
+    <item
+        android:id="@+id/wx"
+        android:actionLayout="@layout/layout_msg"
+        android:title="Aw"
+        app:showAsAction="never" />
 </menu>

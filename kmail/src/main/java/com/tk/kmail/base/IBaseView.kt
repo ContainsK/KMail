@@ -7,7 +7,7 @@ import android.support.v4.app.Fragment
 import android.view.View
 import com.tk.kmail.model.utils.Evs
 
-interface IBaseView<T : com.tk.kmail.mvp.base.IBase.View<*>> : IBase.IContext {
+interface IBaseView<T : com.tk.kmail.mvp.base.IBase.View<*>> : IBase.IContext, IBase.IRecycler {
 
     fun getAppTitle(): String {
         return ""
@@ -22,7 +22,7 @@ interface IBaseView<T : com.tk.kmail.mvp.base.IBase.View<*>> : IBase.IContext {
     fun getLayoutId(): Int
     fun initView()
 
-    fun recycler() {
+    override fun recycler() {
         Evs.unreg(this)
     }
 

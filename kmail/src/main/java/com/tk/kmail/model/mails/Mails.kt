@@ -16,9 +16,16 @@ import javax.mail.internet.MimeUtility
 class Mails(val server: IServer) {
     var mSession: Session
     lateinit var store: Store
-    lateinit var transport: Transport
+//    lateinit var transport: Transport
+
+    companion object {
+        val PROJECT_NAME = "Tan9-X"
+        val PROJECT_NAME_S = Mails.PROJECT_NAME + "_"
+    }
+
     val KEY_HEAD_CONTENT = "MK-CONTENT"
     val KEY_HEAD_DESCRIBE = "MK-DESCRIBE"
+    val KEY_HEAD_SUBJECT = "Subject"
 
     init {
         val properties = Properties()
@@ -74,47 +81,48 @@ class Mails(val server: IServer) {
                     }
 
                 })
+
             }
 
-            this@Mails.transport = getTransport(IServer.TYPE_SMTP).apply {
-                addConnectionListener(object : ConnectionListener {
-                    override fun opened(e: ConnectionEvent?) {
-                        println("transport opened")
-                    }
-
-                    override fun closed(e: ConnectionEvent?) {
-                        println("transport closed")
-                    }
-
-                    override fun disconnected(e: ConnectionEvent?) {
-                        println("transport disconnected")
-                    }
-
-                })
-
-                addTransportListener(object : TransportListener {
-                    override fun messageNotDelivered(e: TransportEvent?) {
-                        println("messageNotDelivered")
-                    }
-
-                    override fun messageDelivered(e: TransportEvent?) {
-                        println("messageDelivered")
-                    }
-
-                    override fun messagePartiallyDelivered(e: TransportEvent?) {
-                        println("messagePartiallyDelivered")
-                    }
-
-                })
-            }
+//            this@Mails.transport = getTransport(IServer.TYPE_SMTP).apply {
+//                addConnectionListener(object : ConnectionListener {
+//                    override fun opened(e: ConnectionEvent?) {
+//                        println("transport opened")
+//                    }
+//
+//                    override fun closed(e: ConnectionEvent?) {
+//                        println("transport closed")
+//                    }
+//
+//                    override fun disconnected(e: ConnectionEvent?) {
+//                        println("transport disconnected")
+//                    }
+//
+//                })
+//
+//                addTransportListener(object : TransportListener {
+//                    override fun messageNotDelivered(e: TransportEvent?) {
+//                        println("messageNotDelivered")
+//                    }
+//
+//                    override fun messageDelivered(e: TransportEvent?) {
+//                        println("messageDelivered")
+//                    }
+//
+//                    override fun messagePartiallyDelivered(e: TransportEvent?) {
+//                        println("messagePartiallyDelivered")
+//                    }
+//
+//                })
+//            }
         }
     }
 
     fun isConnected(): Boolean {
-        if (store == null || !store.isConnected)
+        if (!::store.isInitialized || !store.isConnected)
             return false
-        if (transport == null || !transport.isConnected)
-            return false
+//        if (transport == null || !transport.isConnected)
+//            return false
         return true
     }
 
@@ -122,8 +130,8 @@ class Mails(val server: IServer) {
         try {
             if (!store.isConnected)
                 store.connect()
-            if (!transport.isConnected)
-                transport.connect()
+//            if (!transport.isConnected)
+//                transport.connect()
             return true
         } catch (a: Exception) {
             a.printStackTrace()
@@ -134,8 +142,8 @@ class Mails(val server: IServer) {
     fun closeConnected() {
         if (store.isConnected)
             store.close()
-        if (transport.isConnected)
-            transport.close()
+//        if (transport.isConnected)
+//            transport.close()
     }
 
     fun openFolder(name: String): Folder? {
@@ -189,6 +197,8 @@ class Mails(val server: IServer) {
         message.forEach {
             deleteMessage(it)
         }
+        if (folder.isOpen)
+            folder.close()
         folder.delete(true)
     }
 
@@ -204,17 +214,17 @@ class Mails(val server: IServer) {
         return false
     }
 
-    fun sendMessage(folder: Folder, msg: IGetData) {
+    fun sendMessage(folder: Folder, msg: IGetData, password: String) {
         val mimeMessage = MimeMessage(mSession).apply {
             setFrom(InternetAddress("ppx@ppx.com", "TanX"))
             //mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(username));
             setSubject(msg.getMsgTitle())
             setHeader(KEY_HEAD_CONTENT, MimeUtility.fold(9,
-                    MimeUtility.encodeText(DesUtil.encrypt(msg.getMsgContent()), null, null)))
+                    MimeUtility.encodeText(DesUtil.encrypt(password, msg.getMsgContent()), null, null)))
             setHeader(KEY_HEAD_DESCRIBE, MimeUtility.fold(9,
                     MimeUtility.encodeText(msg.getMsgDescribe(), null, null)))
             setSentDate(Date())
-            setContent(DesUtil.encrypt("who are you ?"), "text/application")
+            setContent("who are you ?", "text/application")
             //smtpTran.sendMessage(mimeMessage,new Address[]{new InternetAddress(username, "Tan33")});
 
         }
@@ -228,7 +238,7 @@ class Mails(val server: IServer) {
 
     fun getFetchProfile(): FetchProfile {
         val fetchProfile = FetchProfile()
-        fetchProfile.add("Subject")
+        fetchProfile.add(KEY_HEAD_SUBJECT)
         fetchProfile.add(KEY_HEAD_CONTENT)
         fetchProfile.add(KEY_HEAD_DESCRIBE)
         fetchProfile.add(FetchProfile.Item.FLAGS)
@@ -238,14 +248,17 @@ class Mails(val server: IServer) {
         return fetchProfile
     }
 
-    fun parseMessage(msg: Message): DataBean {
+    fun parseMessage(msg: Message, password: String): DataBean {
         val folder = msg.folder as IMAPFolder
         val dataBean = DataBean().apply {
             title = msg.subject
-            content = DesUtil.decrypt(MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_CONTENT)[0])))
+            val w = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_CONTENT)[0]))
+            println("$w  $password")
+            content = DesUtil.decrypt(password, w)
             dec = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_DESCRIBE)[0]))
             sendTime = msg.getReceivedDate().toString()
             this.msg = msg
+            println(content + " " + dec + " " + title)
         }
         return dataBean
     }

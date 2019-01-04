@@ -1,7 +1,5 @@
 package com.tk.kmail.project.Main
 
-import android.app.Dialog
-import android.content.Intent
 import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
@@ -12,17 +10,19 @@ import com.tk.kmail.R
 import com.tk.kmail.base.BaseActivity
 import com.tk.kmail.base.BaseFragment
 import com.tk.kmail.base.IBase
-import com.tk.kmail.databinding.LayoutAddUserBinding
 import com.tk.kmail.model.db_bean.UserBean
-import com.tk.kmail.model.utils.BindingUtils
+import com.tk.kmail.model.eventbus.EventBusBean
 import com.tk.kmail.model.utils.Evs
 import com.tk.kmail.mvp.Login
-import com.tk.kmail.mvp.UserManager
 import com.tk.kmail.mvp.base.ResultBean
 import com.tk.kmail.project.UserManager.View
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main2.*
 import kotlinx.android.synthetic.main.include_appbar.*
 import kotlinx.android.synthetic.main.nav_header_main2.*
+import org.greenrobot.eventbus.Subscribe
 
 class Main2Activity : BaseActivity<com.tk.kmail.mvp.base.IBase.View<com.tk.kmail.mvp.base.IBase.Presenter<*>>>(), NavigationView.OnNavigationItemSelectedListener {
     override fun getViewP(): com.tk.kmail.mvp.base.IBase.View<com.tk.kmail.mvp.base.IBase.Presenter<*>> {
@@ -36,6 +36,8 @@ class Main2Activity : BaseActivity<com.tk.kmail.mvp.base.IBase.View<com.tk.kmail
 
 
     override fun initView() {
+
+        Evs.reg(this)
         setSupportActionBar(toolbar)
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -96,10 +98,21 @@ class Main2Activity : BaseActivity<com.tk.kmail.mvp.base.IBase.View<com.tk.kmail
 
 
         }
+
+
+    }
+
+    private lateinit var mEventMenu: EventBusBean.EventMenu
+
+
+    @Subscribe
+    fun onEventMenu(e: EventBusBean.EventMenu) {
+        mEventMenu = e
+        invalidateOptionsMenu()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(if (nav_view.checkedItem?.itemId == R.id.nav_camera) R.menu.main2 else R.menu.selected, menu)
+        menuInflater.inflate(mEventMenu.menuId, menu)
         return true
     }
 
@@ -118,7 +131,7 @@ class Main2Activity : BaseActivity<com.tk.kmail.mvp.base.IBase.View<com.tk.kmail
 
 //    override fun onCreateOptionsMenu(menu: Menu): Boolean {
 //        // Inflate the menu; this adds items to the action bar if it is present.
-//        menuInflater.inflate(R.menu.main2, menu)
+//        menuInflater.inflate(R.menu.add_user, menu)
 //        return true
 //    }
 
@@ -126,34 +139,7 @@ class Main2Activity : BaseActivity<com.tk.kmail.mvp.base.IBase.View<com.tk.kmail
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        when (item.itemId) {
-            R.id.action_add_user -> {
-
-                Dialog(getThisContext(), R.style.CsDialog).apply {
-
-                    val bind = BindingUtils.bind<LayoutAddUserBinding>(context, R.layout.layout_add_user)
-                    val b = UserBean()
-                    b.username = "fgbqahzuk46430@qq.com"
-                    b.password = "xfdtpevgqgvpjdeg"
-                    bind.user = b
-                    bind.tilPassword.isPasswordVisibilityToggleEnabled = true
-                    setContentView(bind.root)
-                    show()
-                    window.attributes = window.attributes.apply { width = mContentView!!.width }
-
-                    bind.floatingActionButton.setOnClickListener {
-                        val str = View::class.java.name
-                        val v: UserManager.View = supportFragmentManager.findFragmentByTag(str) as View
-                        v.mPresenter.addUser(bind.user!!)
-                        dismiss()
-                    }
-
-                }
-            }
-            R.id.action_add -> {
-                startActivity(Intent(getThisContext(), com.tk.kmail.project.Message.Add.View::class.java))
-            }
-        }
+        mEventMenu.callBack(item)
         return super.onOptionsItemSelected(item)
     }
 
@@ -189,7 +175,7 @@ class Main2Activity : BaseActivity<com.tk.kmail.mvp.base.IBase.View<com.tk.kmail
             supportFragmentManager.popBackStack()
         }
         supportFragmentManager.beginTransaction().replace(R.id.layout_fragment, fg
-                ?: View(), fg?.javaClass?.name).commit()
+                ?: View()).commit()
         return true
     }
 

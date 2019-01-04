@@ -23,7 +23,8 @@ class Presenter(override val mView: Login.View) : Login.Presenter {
                     .map { mView.showWaitingDialog("正在退出...") }
                     .observeOn(Schedulers.io())
                     .map {
-                        App.mails?.closeConnected() ?: println("还未登录...")
+                        App.stopKeep()
+                        App.mails?.closeConnected()
                         App.mails = null
                     }
                     .observeOn(AndroidSchedulers.mainThread()).map {
@@ -41,30 +42,25 @@ class Presenter(override val mView: Login.View) : Login.Presenter {
     override fun login(bean: UserBean) {
         Evs.a.cancelEventDelivery(bean)
         loginOut()
-                .map {
-                    mView.showWaitingDialog("登录中，请稍候...")
+                .flatMap {
+                    mView.runDialog("登录中，请稍候...") {
+                        App.userConfig = ServerConfig(bean.username, bean.password)
+                        App.mails = Mails(App.userConfig!!)
+                        App.mails!!.connected()
+                    }
                 }
-                .observeOn(Schedulers.io())
-                .map {
-                    App.userConfig = ServerConfig(bean.username, bean.password)
-                    App.mails = Mails(App.userConfig!!)
-                    App.mails!!.connected()
-                }
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     if (!it)
                         App.mails = null
-                    mView.callResult(ResultBean(Login.TYPE_LOGIN,
-                            it
-                            , bean))
+                    else
+                        App.startKeep()
+                    mView.callResult(ResultBean(Login.TYPE_LOGIN, it, bean))
                 }, {
                     it.printStackTrace()
-                    mView.callResult(ResultBean(Login.TYPE_LOGIN,
-                            false
-                            , bean))
+                    mView.callResult(ResultBean(Login.TYPE_LOGIN, false, bean))
                 }, {
                     mView.hideWaitingDialog()
                 })
+
     }
 }

@@ -20,9 +20,9 @@ class Message private constructor() {
     }
 
     interface Presenter : IBase.Presenter<View> {
-        fun getMessageArrs(folder: Folder): MutableList<DataBean>
+        fun getMessageArrs(folder: Folder, password: String): MutableList<DataBean>
         fun getFolder(name: String): Folder?
-        fun refreshList(folder: Folder)
+        fun refreshList(folder: Folder, password: String)
         fun deleteMessage(msg: Message)
 
         fun setFolder(folder: Folder)
@@ -33,7 +33,7 @@ class Message private constructor() {
     interface AddMessageView : IBase.View<AddMessagePresenter>, IBase.Result<ResultBean>, com.tk.kmail.base.IBase.IViewDialog
 
     interface AddMessagePresenter : IBase.Presenter<AddMessageView> {
-        fun sendMessage(folder: Folder, bean: IGetData)
+        fun sendMessage(folder: Folder, bean: IGetData, password: String)
 
         fun setFolder(folder: Folder)
 
