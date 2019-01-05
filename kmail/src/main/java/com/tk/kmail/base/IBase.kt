@@ -39,6 +39,7 @@ class IBase private constructor() {
                         hideWaitingDialog()
                     }.observeOn(AndroidSchedulers.mainThread())
                     .doOnComplete {
+                        println("complete")
                         hideWaitingDialog()
                     }
 

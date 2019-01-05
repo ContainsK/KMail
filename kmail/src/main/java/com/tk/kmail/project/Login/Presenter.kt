@@ -8,8 +8,6 @@ import com.tk.kmail.model.utils.Evs
 import com.tk.kmail.mvp.Login
 import com.tk.kmail.mvp.base.ResultBean
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import org.greenrobot.eventbus.Subscribe
 
 /**
@@ -18,20 +16,13 @@ import org.greenrobot.eventbus.Subscribe
 class Presenter(override val mView: Login.View) : Login.Presenter {
     override fun loginOut(): Observable<*> {
         if (App.mails != null) {
-            return Observable.just(1)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .map { mView.showWaitingDialog("正在退出...") }
-                    .observeOn(Schedulers.io())
-                    .map {
-                        App.stopKeep()
-                        App.mails?.closeConnected()
-                        App.mails = null
-                    }
-                    .observeOn(AndroidSchedulers.mainThread()).map {
-                        mView.hideWaitingDialog()
-                        mView.callResult(ResultBean(Login.TYPE_OUT, true, 0))
-                    }
-                    .doOnError { mView.hideWaitingDialog() }
+            return mView.runDialog("正在退出...") {
+                App.stopKeep()
+                App.mails?.closeConnected()
+                App.mails = null
+            }.runUI {
+                mView.callResult(ResultBean(Login.TYPE_OUT, true, 0))
+            }
         }
 
         return Observable.just(1)

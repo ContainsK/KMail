@@ -35,6 +35,7 @@ class Mails(val server: IServer) {
         properties["mail.$protocol.ssl.enable"] = "true"
         properties["mail.$protocol.statuscachetimeout"] = -1
         properties["mail.$protocol.connectionpoolsize"] = 10
+        properties["mail.$protocol.timeout"] = 5000
         properties["mail.$protocol.auth"] = "true"
         protocol = IServer.TYPE_SMTP
         properties["mail.$protocol.host"] = protocol + ".qq.com"
@@ -197,8 +198,7 @@ class Mails(val server: IServer) {
         message.forEach {
             deleteMessage(it)
         }
-        if (folder.isOpen)
-            folder.close()
+        closeFolder(folder)
         folder.delete(true)
     }
 

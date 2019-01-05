@@ -6,7 +6,6 @@ import com.tk.kmail.model.mails.DataBean
 import com.tk.kmail.model.utils.Evs
 import com.tk.kmail.mvp.Message
 import com.tk.kmail.mvp.base.ResultBean
-import io.reactivex.Observable
 import org.greenrobot.eventbus.Subscribe
 import javax.mail.Folder
 
@@ -47,12 +46,16 @@ class Presenter(override val mView: Message.View) : Message.Presenter {
     override fun refreshList(folder: Folder, password: String) {
         mView.runDialog {
             getMessageArrs(App.mails!!.refreshFolder(folder)!!, password)
-        }.subscribe { mView.refreshList(it) }
+        }.subscribe {
+            println("subscribe ${it.size}")
+            mView.refreshList(it)
+        }
     }
 
     override fun getMessageArrs(folder: Folder, password: String): MutableList<DataBean> {
         val email = App.mails!!
         val dataBeans = mutableListOf<DataBean>()
+
         if (folder != null) {
             val messages = folder.getMessages()
             folder.fetch(messages, email.getFetchProfile())
