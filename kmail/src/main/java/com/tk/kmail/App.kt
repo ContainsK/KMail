@@ -29,7 +29,8 @@ class App : Application() {
             stopKeep()
             println("开启Keep")
             subscribeKeep = Observable.interval(0, 120, TimeUnit.SECONDS)
-                    .map { println("${mails!!.store.defaultFolder.exists()}  .... keep ...") }.subscribeOn(Schedulers.io()).subscribe()
+//                    .map { println("${mails!!.store.defaultFolder.exists()}  .... keep ...") }.subscribeOn(Schedulers.io()).subscribe()
+                    .map { println(".... keep ...") }.subscribeOn(Schedulers.io()).subscribe()
         }
 
         fun stopKeep() {

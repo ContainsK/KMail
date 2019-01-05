@@ -258,7 +258,7 @@ class Mails(val server: IServer) {
             dec = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_DESCRIBE)[0]))
             sendTime = msg.getReceivedDate().toString()
             this.msg = msg
-            println(content + " " + dec + " " + title)
+//            println(content + " " + dec + " " + title)
         }
         return dataBean
     }
