@@ -1,7 +1,10 @@
 package com.tk.kmail.model.mails
 
+import com.google.gson.JsonSyntaxException
 import com.sun.mail.imap.IMAPFolder
+import com.tk.kmail.model.exception.DecodePassException
 import com.tk.kmail.model.utils.DesUtil
+import com.tk.kmail.model.utils.GsonUtils
 import java.util.*
 import javax.mail.*
 import javax.mail.event.*
@@ -218,9 +221,14 @@ class Mails(val server: IServer) {
         val mimeMessage = MimeMessage(mSession).apply {
             setFrom(InternetAddress("ppx@ppx.com", "TanX"))
             //mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(username));
-            setSubject(msg.getMsgTitle())
+//            setSubject(msg.getMsgTitle())
+            val j = GsonUtils.gson().toJson(com.tk.kmail.model.bean.DataBean(msg.getMsgContent()))
+            val p = DesUtil.encrypt(password, j)
+//            println("$j \n $p ")
+            setHeader(KEY_HEAD_SUBJECT, MimeUtility.fold(9,
+                    MimeUtility.encodeText(msg.getMsgTitle(), null, null)))
             setHeader(KEY_HEAD_CONTENT, MimeUtility.fold(9,
-                    MimeUtility.encodeText(DesUtil.encrypt(password, msg.getMsgContent()), null, null)))
+                    MimeUtility.encodeText(p, null, null)))
             setHeader(KEY_HEAD_DESCRIBE, MimeUtility.fold(9,
                     MimeUtility.encodeText(msg.getMsgDescribe(), null, null)))
             setSentDate(Date())
@@ -248,16 +256,24 @@ class Mails(val server: IServer) {
         return fetchProfile
     }
 
+    @Throws(DecodePassException::class)
     fun parseMessage(msg: Message, password: String): DataBean {
         val folder = msg.folder as IMAPFolder
         val dataBean = DataBean().apply {
-            title = msg.subject
+            title = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_SUBJECT)[0]))
             val w = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_CONTENT)[0]))
-            println("$w  $password")
-            content = DesUtil.decrypt(password, w)
-            dec = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_DESCRIBE)[0]))
-            sendTime = msg.getReceivedDate().toString()
-            this.msg = msg
+            val p = DesUtil.decrypt(password, w)
+            try {
+                val bean = GsonUtils.gson().fromJson(p, com.tk.kmail.model.bean.DataBean::class.java)
+                if (!GsonUtils.isJson(p) || bean == null)
+                    throw DecodePassException("pass error !")
+                content = bean.mail_content
+                dec = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_DESCRIBE)[0]))
+                sendTime = msg.getReceivedDate().toString()
+                this.msg = msg
+            } catch (ex: JsonSyntaxException) {
+                throw DecodePassException("pass error !")
+            }
 //            println(content + " " + dec + " " + title)
         }
         return dataBean

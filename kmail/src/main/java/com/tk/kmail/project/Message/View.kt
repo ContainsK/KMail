@@ -2,7 +2,6 @@ package com.tk.kmail.project.Message
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.Intent
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
@@ -13,11 +12,12 @@ import com.tk.kmail.base.BaseFragment
 import com.tk.kmail.base.IBase
 import com.tk.kmail.model.eventbus.EventBusBean
 import com.tk.kmail.model.mails.DataBean
+import com.tk.kmail.model.utils.ActivityUtil
 import com.tk.kmail.model.utils.Evs
 import com.tk.kmail.model.utils.ToastUtils
 import com.tk.kmail.mvp.Message
 import com.tk.kmail.mvp.base.ResultBean
-import com.tk.kmail.project.Message.Add.View
+import com.tk.kmail.project.Main.Main4Activity
 import kotlinx.android.synthetic.main.include_edittext.view.*
 import kotlinx.android.synthetic.main.include_recyclerview.*
 import kotlinx.android.synthetic.main.include_swipe_recyclerview.*
@@ -30,6 +30,10 @@ class View : BaseFragment<Message.View>() {
 
     override fun getViewP(): Message.View {
         return object : Message.View, IBase.IViewDialog by getViewDialog() {
+            override fun getPassword(): String {
+                return pass
+            }
+
             override fun refreshList(list: MutableList<DataBean>) {
                 this@View.recyclerView.adapter = MessageAdapter(list, this)
             }
@@ -43,6 +47,12 @@ class View : BaseFragment<Message.View>() {
                     Message.TYPE_DELETE -> {
                         Snackbar.make(mContentView!!, "删除：${result.status}", Snackbar.LENGTH_SHORT).show()
                         refresh()
+                    }
+                    Message.TYPE_PASSERROR -> {
+                        if (!result.status) {
+                            ToastUtils.show("密码错误！")
+                            fragmentManager!!.popBackStack()
+                        }
                     }
                 }
 
@@ -64,7 +74,7 @@ class View : BaseFragment<Message.View>() {
             swipeRefresh.isRefreshing = false
         }
         Evs.a.post(EventBusBean.EventMenu(R.menu.add_message) {
-            startActivity(Intent(getThisContext(), View::class.java).apply { putExtra("pass", pass) })
+            Main4Activity.buildStart(ActivityUtil.build(getThisContext()), mViewP.getPassword()).go()
         })
 
         AlertDialog.Builder(getThisContext()).apply {

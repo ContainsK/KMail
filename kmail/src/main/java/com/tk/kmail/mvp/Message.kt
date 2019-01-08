@@ -13,10 +13,13 @@ import javax.mail.Message
 class Message private constructor() {
     companion object {
         val TYPE_DELETE = 0x01
+        val TYPE_PASSERROR = 0x02
+        val TYPE_SEND = 0x03
     }
 
     interface View : IBase.View<Presenter>, IBase.Result<ResultBean>, com.tk.kmail.base.IBase.IViewDialog {
         fun refreshList(list: MutableList<DataBean>)
+        fun getPassword(): String
     }
 
     interface Presenter : IBase.Presenter<View> {
@@ -24,19 +27,13 @@ class Message private constructor() {
         fun getFolder(name: String): Folder?
         fun refreshList(folder: Folder, password: String)
         fun deleteMessage(msg: Message)
-
-        fun setFolder(folder: Folder)
-
-        fun getFolder(): Folder
-    }
-
-    interface AddMessageView : IBase.View<AddMessagePresenter>, IBase.Result<ResultBean>, com.tk.kmail.base.IBase.IViewDialog
-
-    interface AddMessagePresenter : IBase.Presenter<AddMessageView> {
         fun sendMessage(folder: Folder, bean: IGetData, password: String)
-
         fun setFolder(folder: Folder)
 
         fun getFolder(): Folder
     }
+//
+//    interface AddMessageView : IBase.View<AddMessagePresenter>, IBase.Result<ResultBean>, com.tk.kmail.base.IBase.IViewDialog
+//
+//    interface AddMessagePresenter : Presenter
 }

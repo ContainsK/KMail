@@ -1,16 +1,16 @@
 package com.tk.kmail.project.Message
 
 import android.app.AlertDialog
-import android.content.Intent
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.tk.kmail.R
 import com.tk.kmail.base.BaseViewHolder
 import com.tk.kmail.databinding.LayoutItemMessagesBinding
 import com.tk.kmail.model.mails.DataBean
+import com.tk.kmail.model.utils.ActivityUtil
 import com.tk.kmail.model.utils.Evs
 import com.tk.kmail.mvp.Message
-import com.tk.kmail.project.Message.Add.View
+import com.tk.kmail.project.Main.Main4Activity
 
 /**
  * Created by TangKai on 2018/12/27.
@@ -28,10 +28,7 @@ class MessageAdapter(var list: MutableList<DataBean>, val vp: Message.View) : Re
         p0.binding.data = list[p1]
         p0.itemView.setOnClickListener {
             Evs.a.postSticky(list[p1])
-            it.context.startActivity(Intent(it.context, View::class.java).apply {
-                putExtra("read", true)
-            })
-
+            Main4Activity.buildStart(ActivityUtil.build(it.context), vp.getPassword(), true).go()
         }
         p0.itemView.setOnLongClickListener {
 

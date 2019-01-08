@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,6 +31,7 @@ public class GsonUtils {
             }
         return gson;
     }
+
     public static boolean isJson(String jsonString) {
         if (TextUtils.isEmpty(jsonString))
             return false;
@@ -97,6 +99,15 @@ public class GsonUtils {
 
         public <T> T getClassObj(Class<T> clasz) {
             return gson().fromJson(mO, clasz);
+        }
+
+        public <T> T getClassType() {
+            return gson().fromJson(mO, new TypeToken<T>() {
+            }.getType());
+        }
+
+        public <T> T[] getClassType(Class<T[]> c) {
+            return gson().fromJson(mO, c);
         }
 
         public JsonElement getObj() {

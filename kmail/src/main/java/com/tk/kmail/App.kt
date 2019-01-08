@@ -8,6 +8,7 @@ import com.tk.kmail.model.mails.ServerConfig
 import com.tk.kmail.model.utils.ToastUtils
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
+import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
@@ -47,6 +48,9 @@ class App : Application() {
         ToastUtils.instance(this)
         initDao()
         context = this
+        RxJavaPlugins.setErrorHandler {
+            it.printStackTrace()
+        }
     }
 
     private fun initDao() {

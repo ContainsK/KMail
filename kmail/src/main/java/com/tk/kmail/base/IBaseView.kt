@@ -4,7 +4,9 @@ import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Context
 import android.support.v4.app.Fragment
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.LinearLayout
 import com.tk.kmail.model.utils.Evs
 
 interface IBaseView<T : com.tk.kmail.mvp.base.IBase.View<*>> : IBase.IContext, IBase.IRecycler {
@@ -56,5 +58,7 @@ interface IBaseView<T : com.tk.kmail.mvp.base.IBase.View<*>> : IBase.IContext, I
         return null
     }
 
-
+    fun inflate(resId: Int): View {
+        return LayoutInflater.from(getThisContext()).inflate(resId, LinearLayout(getThisContext()), false)
+    }
 }

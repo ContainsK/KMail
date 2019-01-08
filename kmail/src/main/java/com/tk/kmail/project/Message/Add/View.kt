@@ -14,13 +14,21 @@ import com.tk.kmail.model.mails.IGetData
 import com.tk.kmail.model.utils.Evs
 import com.tk.kmail.mvp.Message
 import com.tk.kmail.mvp.base.ResultBean
+import com.tk.kmail.project.Message.Presenter
 import kotlinx.android.synthetic.main.include_appbar.*
 import kotlinx.android.synthetic.main.layout_add_message.*
 import org.greenrobot.eventbus.Subscribe
 
-class View : BaseActivity<Message.AddMessageView>() {
-    override fun getViewP(): Message.AddMessageView {
-        return object : Message.AddMessageView, IBase.IViewDialog by getViewDialog() {
+class View : BaseActivity<Message.View>() {
+    override fun getViewP(): Message.View {
+        return object : Message.View, IBase.IViewDialog by getViewDialog() {
+            override fun getPassword(): String {
+                return intent.getStringExtra("pass")
+            }
+
+            override fun refreshList(list: MutableList<DataBean>) {
+            }
+
             override fun callResult(result: ResultBean) {
 
                 Snackbar.make(mContentView!!, result.getAResult<String>()!!, Snackbar.LENGTH_SHORT).show()
@@ -28,7 +36,7 @@ class View : BaseActivity<Message.AddMessageView>() {
                     finish()
             }
 
-            override fun getPresenter(): Message.AddMessagePresenter {
+            override fun getPresenter(): Message.Presenter {
                 return Presenter(this)
             }
 
@@ -94,7 +102,7 @@ class View : BaseActivity<Message.AddMessageView>() {
                     return tiet_title.text.toString()
                 }
 
-            }, intent.getStringExtra("pass"))
+            }, mViewP.getPassword())
         }
     }
 
