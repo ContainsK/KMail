@@ -80,6 +80,7 @@ class Presenter(override val mView: Message.View) : Message.Presenter {
                     mView.callResult(ResultBean(Message.TYPE_SEND, true, result = "保存成功！"))
                 }, {
                     it.printStackTrace()
+
                     mView.hideWaitingDialog()
                     mView.callResult(ResultBean(Message.TYPE_SEND, false, result = "保存失败！"))
                 })
