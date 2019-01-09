@@ -115,7 +115,7 @@ class View : BaseFragment<Message.View>() {
             ToastUtils.show("还未登录...")
             return
         }
-        mViewP.mPresenter.refreshList(mViewP.mPresenter.getFolder(), pass)
+        mViewP.mPresenter.refreshList(mViewP.mPresenter.getFolder())
     }
 
     override fun recycler() {

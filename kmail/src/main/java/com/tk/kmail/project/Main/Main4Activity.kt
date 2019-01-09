@@ -11,7 +11,7 @@ import android.widget.LinearLayout
 import com.tk.kmail.R
 import com.tk.kmail.base.BaseActivity
 import com.tk.kmail.base.IBase
-import com.tk.kmail.model.bean.TagBean
+import com.tk.kmail.model.bean.MessageTagBean
 import com.tk.kmail.model.mails.DataBean
 import com.tk.kmail.model.mails.IGetData
 import com.tk.kmail.model.utils.ActivityUtil
@@ -21,7 +21,6 @@ import com.tk.kmail.model.utils.ToastUtils
 import com.tk.kmail.mvp.Message
 import com.tk.kmail.mvp.base.ResultBean
 import com.tk.kmail.project.Message.Presenter
-import com.tk.kmail.view.MkEditDialog.Companion.setRead
 import kotlinx.android.synthetic.main.include_appbar.view.*
 import kotlinx.android.synthetic.main.layout_new_add_message.view.*
 import org.greenrobot.eventbus.Subscribe
@@ -40,8 +39,8 @@ class Main4Activity : BaseActivity<Message.View>() {
     val KEY_TEXT_TITLE = "名称"
     val KEY_TEXT_DEC = "备注"
     val arrText = arrayListOf(KEY_TEXT_TITLE, KEY_TEXT_DEC)
-    val tagList = mutableListOf<TagBean>()
-    //    val linkedHashMap: LinkedHashMap<String, TagBean> = java.util.LinkedHashMap()
+    val tagList = mutableListOf<MessageTagBean>()
+    //    val linkedHashMap: LinkedHashMap<String, MessageTagBean> = java.util.LinkedHashMap()
     override fun getViewP(): Message.View {
         return object : Message.View, IBase.IViewDialog by getViewDialog() {
             override fun refreshList(list: MutableList<DataBean>) {
@@ -108,7 +107,7 @@ class Main4Activity : BaseActivity<Message.View>() {
         setSupportActionBar(mContentView!!.toolbar)
         if (isRead) {
             println(data.content)
-            tagList.addAll(GsonUtils.build(data.content).getClassType(Array<TagBean>::class.java))
+            tagList.addAll(GsonUtils.build(data.content).getClassType(Array<MessageTagBean>::class.java))
             tagList.forEach {
                 mContentView!!.linearLayout.addView(createView(it, true))
 
@@ -118,7 +117,7 @@ class Main4Activity : BaseActivity<Message.View>() {
 
         (mContentView as ViewGroup).apply {
             arrText.forEach {
-                linearLayout.addView(createW(TagBean(it)))
+                linearLayout.addView(createW(MessageTagBean(it)))
             }
         }
 
@@ -128,6 +127,7 @@ class Main4Activity : BaseActivity<Message.View>() {
         menuInflater.inflate(R.menu.add_new_message, menu)
         return super.onCreateOptionsMenu(menu)
     }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item!!.itemId) {
             R.id.action_add_send -> {
@@ -142,7 +142,7 @@ class Main4Activity : BaseActivity<Message.View>() {
                 for (ind in 1..coun) {
                     val edline = vg.getChildAt(ind - 1) as TextInputLayout
                     val edit = edline.editText!!
-                    val bean = edline.tag as TagBean
+                    val bean = edline.tag as MessageTagBean
                     bean.text = edit.text.toString()
                 }
 
@@ -158,7 +158,7 @@ class Main4Activity : BaseActivity<Message.View>() {
                     override fun getMsgTitle(): String {
                         return ed_name!!.editText!!.text.toString()
                     }
-                }, mViewP.getPassword())
+                })
 
             }
             R.id.action_add_tag -> {
@@ -188,7 +188,7 @@ class Main4Activity : BaseActivity<Message.View>() {
     }
 
     private fun showDialog() {
-        val ed = createView(TagBean("标签名"), false)
+        val ed = createView(MessageTagBean("标签名"), false)
         android.support.v7.app.AlertDialog.Builder(getThisContext()!!).apply {
             val view = LinearLayout(context)
             view.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -209,7 +209,7 @@ class Main4Activity : BaseActivity<Message.View>() {
         }.create().apply {
             show()
             getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                val v = createW(TagBean(ed.editText!!.text.toString()))
+                val v = createW(MessageTagBean(ed.editText!!.text.toString()))
                 if (v != null) {
                     mContentView!!.linearLayout.addView(v)
                     dismiss()
@@ -223,7 +223,7 @@ class Main4Activity : BaseActivity<Message.View>() {
 
     }
 
-    fun createView(tag: TagBean, isRead: Boolean): TextInputLayout {
+    fun createView(tag: MessageTagBean, isRead: Boolean): TextInputLayout {
         val ctx = getThisContext()
         return TextInputLayout(ctx).apply {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -257,11 +257,11 @@ class Main4Activity : BaseActivity<Message.View>() {
     }
 
 
-//    private fun createA(hintText: String, tag: TagBean): TextInputLayout {
+//    private fun createA(hintText: String, tag: MessageTagBean): TextInputLayout {
 //        return createA(hintText, tag, true)
 //    }
 //
-//    private fun createA(hintText: String, tag: TagBean, isRead: Boolean): TextInputLayout {
+//    private fun createA(hintText: String, tag: MessageTagBean, isRead: Boolean): TextInputLayout {
 //        //TextInputLayout
 //        //TextInputEditText
 //        val ctx = getThisContext()
@@ -293,13 +293,13 @@ class Main4Activity : BaseActivity<Message.View>() {
 //        }
 //    }
 
-    private fun createW(tag: TagBean): TextInputLayout? {
+    private fun createW(tag: MessageTagBean): TextInputLayout? {
         val ind = tagList.indexOf(tag)
-        if (ind > -1) {
-            return null
+        return if (ind > -1) {
+            null
         } else {
             tagList.add(tag)
-            return createView(tag, false)
+            createView(tag, false)
         }
     }
 

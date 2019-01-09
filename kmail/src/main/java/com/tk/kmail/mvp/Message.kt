@@ -23,11 +23,12 @@ class Message private constructor() {
     }
 
     interface Presenter : IBase.Presenter<View> {
-        fun getMessageArrs(folder: Folder, password: String): MutableList<DataBean>
+        fun getMessageArrs(folder: Folder): MutableList<DataBean>
+        fun getMessageArrs(folder: Folder, start: Int, end: Int): MutableList<DataBean>
         fun getFolder(name: String): Folder?
-        fun refreshList(folder: Folder, password: String)
+        fun refreshList(folder: Folder)
         fun deleteMessage(msg: Message)
-        fun sendMessage(folder: Folder, bean: IGetData, password: String)
+        fun sendMessage(folder: Folder, bean: IGetData)
         fun setFolder(folder: Folder)
 
         fun getFolder(): Folder

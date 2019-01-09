@@ -2,6 +2,8 @@ package com.tk.kmail.model.mails
 
 import com.google.gson.JsonSyntaxException
 import com.sun.mail.imap.IMAPFolder
+import com.tk.kmail.model.bean.MessageDataBean
+import com.tk.kmail.model.db_bean.MsgBean
 import com.tk.kmail.model.exception.DecodePassException
 import com.tk.kmail.model.utils.DesUtil
 import com.tk.kmail.model.utils.GsonUtils
@@ -184,7 +186,7 @@ class Mails(val server: IServer) {
 
     fun closeFolder(folder: Folder) {
         if (folder.isOpen)
-            folder.close(true)
+            folder.close(false)
     }
 
     fun refreshFolder(folder: Folder): Folder? {
@@ -211,7 +213,7 @@ class Mails(val server: IServer) {
             val uid = folder.getUID(msg)
             val messageByUID = folder.getMessageByUID(uid)
             messageByUID.setFlag(Flags.Flag.DELETED, true)
-            folder.expunge()
+//            folder.expunge()
             return true
         }
         return false
@@ -222,7 +224,7 @@ class Mails(val server: IServer) {
             setFrom(InternetAddress("ppx@ppx.com", "TanX"))
             //mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(username));
 //            setSubject(msg.getMsgTitle())
-            val j = GsonUtils.gson().toJson(com.tk.kmail.model.bean.DataBean(msg.getMsgContent()))
+            val j = GsonUtils.gson().toJson(com.tk.kmail.model.bean.MessageDataBean(msg.getMsgContent()))
             val p = DesUtil.encrypt(password, j)
 //            println("$j \n $p ")
             setHeader(KEY_HEAD_SUBJECT, MimeUtility.fold(9,
@@ -252,30 +254,54 @@ class Mails(val server: IServer) {
         fetchProfile.add(FetchProfile.Item.FLAGS)
         fetchProfile.add(FetchProfile.Item.ENVELOPE)
         fetchProfile.add(UIDFolder.FetchProfileItem.UID)
-
         return fetchProfile
     }
 
-    @Throws(DecodePassException::class)
-    fun parseMessage(msg: Message, password: String): DataBean {
+    fun parseMessage2MsgBean(msg: Message, password: String): MsgBean {
+        val exc = DecodePassException("pass error !")
         val folder = msg.folder as IMAPFolder
-        val dataBean = DataBean().apply {
+        return MsgBean().apply {
+            content = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_CONTENT)[0]))
+            parseJson2MessageDataBean(content, password)
+            uid = folder.getUID(msg).toString()
             title = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_SUBJECT)[0]))
-            val w = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_CONTENT)[0]))
-            val p = DesUtil.decrypt(password, w)
-            try {
-                val bean = GsonUtils.gson().fromJson(p, com.tk.kmail.model.bean.DataBean::class.java)
-                if (!GsonUtils.isJson(p) || bean == null)
-                    throw DecodePassException("pass error !")
-                content = bean.mail_content
-                dec = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_DESCRIBE)[0]))
-                sendTime = msg.getReceivedDate().toString()
-                this.msg = msg
-            } catch (ex: JsonSyntaxException) {
-                throw DecodePassException("pass error !")
-            }
-//            println(content + " " + dec + " " + title)
+            dec = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_DESCRIBE)[0]))
+            sendTime = msg.receivedDate.toString()
+            this.msg = msg
         }
-        return dataBean
+    }
+
+
+    fun parseMessage(msg: Message, password: String): DataBean {
+        return parseMessage2MsgBean(msg, password).let {
+            parseMsgB2DataB(it, password)
+        }
+    }
+
+    fun parseMsgB2DataB(msgB: MsgBean, password: String): DataBean {
+        return DataBean().apply {
+            content = parseJson2MessageDataBean(msgB.content, password).mail_content
+            title = msgB.title
+            dec = msgB.dec
+            sendTime = msgB.sendTime
+            msg = msgB.msg
+            uid = msgB.uid
+        }
+    }
+
+    /**
+     * 判断密码，异常抛出
+     */
+    private fun parseJson2MessageDataBean(encodeText: String, password: String): MessageDataBean {
+        val exc = DecodePassException("pass error !")
+        val p = DesUtil.decrypt(password, encodeText)
+        try {
+            val bean = GsonUtils.gson().fromJson(p, com.tk.kmail.model.bean.MessageDataBean::class.java)
+            if (!GsonUtils.isJson(p) || bean == null)
+                throw exc
+            return bean
+        } catch (ex: JsonSyntaxException) {
+            throw exc
+        }
     }
 }

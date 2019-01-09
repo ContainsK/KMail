@@ -102,7 +102,7 @@ class View : BaseActivity<Message.View>() {
                     return tiet_title.text.toString()
                 }
 
-            }, mViewP.getPassword())
+            })
         }
     }
 
