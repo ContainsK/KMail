@@ -39,7 +39,7 @@ class MessageAdapter(var list: MutableList<DataBean>, val vp: Message.View) : Re
 
                 })
                 setPositiveButton("是", { msg, w ->
-                    vp.mPresenter.deleteMessage(list[p1].msg)
+                    vp.mPresenter.deleteMessage(list[p1].className, list[p1].uid)
                     msg.dismiss()
                 })
 

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import com.tk.kmail.R
 import com.tk.kmail.base.BaseViewHolder
 import com.tk.kmail.databinding.LayoutItemMessagesBinding
+import com.tk.kmail.model.db_bean.ClassBean
 import com.tk.kmail.model.mails.Mails
 import com.tk.kmail.model.utils.Evs
 import com.tk.kmail.model.utils.StringUtils
@@ -17,7 +18,7 @@ import javax.mail.Folder
 /**
  * Created by TangKai on 2018/12/28.
  */
-class PAdapter(var list: MutableList<Folder>, val afg: View) : RecyclerView.Adapter<BaseViewHolder<LayoutItemMessagesBinding>>() {
+class PAdapter(var list: MutableList<ClassBean>, val afg: View) : RecyclerView.Adapter<BaseViewHolder<LayoutItemMessagesBinding>>() {
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): BaseViewHolder<LayoutItemMessagesBinding> {
 

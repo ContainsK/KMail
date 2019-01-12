@@ -1,11 +1,12 @@
 package com.tk.kmail.model.db_bean;
 
+import com.google.gson.annotations.Expose;
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Transient;
 
-import javax.mail.Message;
+import java.util.Date;
 
 /**
  * 将Message 转换为MsgBean 缓存到本地数据库，此时Message是加密状态。
@@ -15,13 +16,54 @@ import javax.mail.Message;
  */
 @Entity
 public class MsgBean {
+    @Expose
     @Id(autoincrement = true)
-    private Long id;
-    private String uid;
-    private String content;
-    private String title, sendTime, dec;
-    @Transient
-    public Message msg;
+    public Long id;
+    public long uid = System.currentTimeMillis();
+    public String content;
+    public String title, dec, className;
+    public Date sendTime;
+    public int flag;
+
+    public int getFlag() {
+        return this.flag;
+    }
+
+    public void setFlag(int flag) {
+        this.flag = flag;
+    }
+
+    public Date getSendTime() {
+        return this.sendTime;
+    }
+
+    public void setSendTime(Date sendTime) {
+        this.sendTime = sendTime;
+    }
+
+    public String getClassName() {
+        return this.className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getDec() {
+        return this.dec;
+    }
+
+    public void setDec(String dec) {
+        this.dec = dec;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public String getContent() {
         return this.content;
@@ -31,11 +73,11 @@ public class MsgBean {
         this.content = content;
     }
 
-    public String getUid() {
+    public Long getUid() {
         return this.uid;
     }
 
-    public void setUid(String uid) {
+    public void setUid(Long uid) {
         this.uid = uid;
     }
 
@@ -47,43 +89,26 @@ public class MsgBean {
         this.id = id;
     }
 
-    public String getDec() {
-        return this.dec;
+    public void setUid(long uid) {
+        this.uid = uid;
     }
 
-    public void setDec(String dec) {
-        this.dec = dec;
-    }
-
-    public String getSendTime() {
-        return this.sendTime;
-    }
-
-    public void setSendTime(String sendTime) {
-        this.sendTime = sendTime;
-    }
-
-    public String getTitle() {
-        return this.title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    @Generated(hash = 2105877229)
-    public MsgBean(Long id, String uid, String content, String title,
-            String sendTime, String dec) {
+    @Generated(hash = 276846687)
+    public MsgBean(Long id, long uid, String content, String title, String dec,
+            String className, Date sendTime, int flag) {
         this.id = id;
         this.uid = uid;
         this.content = content;
         this.title = title;
-        this.sendTime = sendTime;
         this.dec = dec;
+        this.className = className;
+        this.sendTime = sendTime;
+        this.flag = flag;
     }
 
     @Generated(hash = 237905234)
     public MsgBean() {
     }
+
 
 }

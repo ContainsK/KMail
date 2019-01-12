@@ -58,13 +58,13 @@ class Main4Activity : BaseActivity<Message.View>() {
                 //TODO 这一块需要 与本地联调，已达到编辑效果。
                 when (result.type) {
                     Message.TYPE_SEND -> {
+                        ToastUtils.show(result.getAResult())
                         if (result.status) {
-                            ToastUtils.show(result.getAResult())
                             if (!::data.isInitialized) {
                                 finish()
                                 return
                             }
-                            mViewP.mPresenter.deleteMessage(data.msg)
+                            mPresenter.deleteMessage(data.className, data.uid)
                         }
 
                     }
@@ -146,7 +146,7 @@ class Main4Activity : BaseActivity<Message.View>() {
                     bean.text = edit.text.toString()
                 }
 
-                mViewP.mPresenter.sendMessage(mViewP.mPresenter.getFolder(), object : IGetData {
+                mViewP.mPresenter.sendMessage(mViewP.mPresenter.getClassBean().name, object : IGetData {
                     override fun getMsgContent(): String {
                         return GsonUtils.gson().toJson(tagList)
                     }

@@ -9,6 +9,7 @@ import com.tk.kmail.App
 import com.tk.kmail.R
 import com.tk.kmail.base.BaseFragment
 import com.tk.kmail.base.IBase
+import com.tk.kmail.model.db_bean.ClassBean
 import com.tk.kmail.model.eventbus.EventBusBean
 import com.tk.kmail.model.utils.Evs
 import com.tk.kmail.model.utils.ToastUtils
@@ -25,7 +26,7 @@ import javax.mail.Folder
 class View : BaseFragment<ProjectMng.View>() {
     override fun getViewP(): ProjectMng.View {
         return object : ProjectMng.View, IBase.IViewDialog by getViewDialog() {
-            override fun refreshList(list: MutableList<Folder>) {
+            override fun refreshList(list: MutableList<ClassBean>) {
                 this@View.recyclerView.adapter = PAdapter(list, this@View)
             }
 
@@ -75,10 +76,10 @@ class View : BaseFragment<ProjectMng.View>() {
     }
 
     private fun refresh() {
-        if (App.mails == null) {
-            ToastUtils.show("还未登录...")
-            return
-        }
+//        if (App.mails == null) {
+//            ToastUtils.show("还未登录...")
+//            return
+//        }
         mViewP.mPresenter.refreshList()
     }
 

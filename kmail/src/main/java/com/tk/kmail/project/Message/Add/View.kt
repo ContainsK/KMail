@@ -85,7 +85,7 @@ class View : BaseActivity<Message.View>() {
         }
         floatingActionButton.setOnClickListener {
             val p = mViewP.mPresenter
-            p.sendMessage(p.getFolder(), object : IGetData {
+            p.sendMessage(p.getClassBean().name, object : IGetData {
 
                 override fun getMsgContent(): String {
                     return tiet_content.text.toString()

@@ -27,15 +27,27 @@ import kotlinx.android.synthetic.main.include_swipe_recyclerview.*
  * Created by TangKai on 2018/12/27.
  */
 class View : BaseFragment<Message.View>() {
-
+    val count = 10
+    var start = 1
+    lateinit var adapter: MessageAdapter
     override fun getViewP(): Message.View {
         return object : Message.View, IBase.IViewDialog by getViewDialog() {
+
+
             override fun getPassword(): String {
                 return pass
             }
 
             override fun refreshList(list: MutableList<DataBean>) {
-                this@View.recyclerView.adapter = MessageAdapter(list, this)
+                if (!::adapter.isInitialized) {
+                    adapter = MessageAdapter(list, this)
+                    this@View.recyclerView.adapter = adapter
+                } else {
+                    adapter.list.addAll(list)
+                    adapter.notifyDataSetChanged()
+                }
+
+
             }
 
             override fun getPresenter(): Message.Presenter {
@@ -108,14 +120,20 @@ class View : BaseFragment<Message.View>() {
         refresh()
     }
 
-    private fun refresh() {
+    private fun refresh(isMore: Boolean = false) {
         if (!::pass.isInitialized)
             return
-        if (App.mails == null) {
-            ToastUtils.show("还未登录...")
-            return
+//        if (App.mails == null) {
+//            ToastUtils.show("还未登录...")
+//            return
+//        }
+        if (!isMore) {
+            if (::adapter.isInitialized)
+                adapter.list.clear()
+            start = 1
         }
-        mViewP.mPresenter.refreshList(mViewP.mPresenter.getFolder())
+        mViewP.mPresenter.refreshList(mViewP.mPresenter.getClassBean().name, start, count)
+        start += count
     }
 
     override fun recycler() {

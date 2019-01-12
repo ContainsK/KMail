@@ -25,11 +25,13 @@ public class MsgBeanDao extends AbstractDao<MsgBean, Long> {
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property Uid = new Property(1, String.class, "uid", false, "UID");
+        public final static Property Uid = new Property(1, long.class, "uid", false, "UID");
         public final static Property Content = new Property(2, String.class, "content", false, "CONTENT");
         public final static Property Title = new Property(3, String.class, "title", false, "TITLE");
-        public final static Property SendTime = new Property(4, String.class, "sendTime", false, "SEND_TIME");
-        public final static Property Dec = new Property(5, String.class, "dec", false, "DEC");
+        public final static Property Dec = new Property(4, String.class, "dec", false, "DEC");
+        public final static Property ClassName = new Property(5, String.class, "className", false, "CLASS_NAME");
+        public final static Property SendTime = new Property(6, java.util.Date.class, "sendTime", false, "SEND_TIME");
+        public final static Property Flag = new Property(7, int.class, "flag", false, "FLAG");
     }
 
 
@@ -46,11 +48,13 @@ public class MsgBeanDao extends AbstractDao<MsgBean, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"MSG_BEAN\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "\"UID\" TEXT," + // 1: uid
+                "\"UID\" INTEGER NOT NULL ," + // 1: uid
                 "\"CONTENT\" TEXT," + // 2: content
                 "\"TITLE\" TEXT," + // 3: title
-                "\"SEND_TIME\" TEXT," + // 4: sendTime
-                "\"DEC\" TEXT);"); // 5: dec
+                "\"DEC\" TEXT," + // 4: dec
+                "\"CLASS_NAME\" TEXT," + // 5: className
+                "\"SEND_TIME\" INTEGER," + // 6: sendTime
+                "\"FLAG\" INTEGER NOT NULL );"); // 7: flag
     }
 
     /** Drops the underlying database table. */
@@ -67,11 +71,7 @@ public class MsgBeanDao extends AbstractDao<MsgBean, Long> {
         if (id != null) {
             stmt.bindLong(1, id);
         }
- 
-        String uid = entity.getUid();
-        if (uid != null) {
-            stmt.bindString(2, uid);
-        }
+        stmt.bindLong(2, entity.getUid());
  
         String content = entity.getContent();
         if (content != null) {
@@ -83,15 +83,21 @@ public class MsgBeanDao extends AbstractDao<MsgBean, Long> {
             stmt.bindString(4, title);
         }
  
-        String sendTime = entity.getSendTime();
-        if (sendTime != null) {
-            stmt.bindString(5, sendTime);
-        }
- 
         String dec = entity.getDec();
         if (dec != null) {
-            stmt.bindString(6, dec);
+            stmt.bindString(5, dec);
         }
+ 
+        String className = entity.getClassName();
+        if (className != null) {
+            stmt.bindString(6, className);
+        }
+ 
+        java.util.Date sendTime = entity.getSendTime();
+        if (sendTime != null) {
+            stmt.bindLong(7, sendTime.getTime());
+        }
+        stmt.bindLong(8, entity.getFlag());
     }
 
     @Override
@@ -102,11 +108,7 @@ public class MsgBeanDao extends AbstractDao<MsgBean, Long> {
         if (id != null) {
             stmt.bindLong(1, id);
         }
- 
-        String uid = entity.getUid();
-        if (uid != null) {
-            stmt.bindString(2, uid);
-        }
+        stmt.bindLong(2, entity.getUid());
  
         String content = entity.getContent();
         if (content != null) {
@@ -118,15 +120,21 @@ public class MsgBeanDao extends AbstractDao<MsgBean, Long> {
             stmt.bindString(4, title);
         }
  
-        String sendTime = entity.getSendTime();
-        if (sendTime != null) {
-            stmt.bindString(5, sendTime);
-        }
- 
         String dec = entity.getDec();
         if (dec != null) {
-            stmt.bindString(6, dec);
+            stmt.bindString(5, dec);
         }
+ 
+        String className = entity.getClassName();
+        if (className != null) {
+            stmt.bindString(6, className);
+        }
+ 
+        java.util.Date sendTime = entity.getSendTime();
+        if (sendTime != null) {
+            stmt.bindLong(7, sendTime.getTime());
+        }
+        stmt.bindLong(8, entity.getFlag());
     }
 
     @Override
@@ -138,11 +146,13 @@ public class MsgBeanDao extends AbstractDao<MsgBean, Long> {
     public MsgBean readEntity(Cursor cursor, int offset) {
         MsgBean entity = new MsgBean( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // uid
+            cursor.getLong(offset + 1), // uid
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // content
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // title
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // sendTime
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5) // dec
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // dec
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // className
+            cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)), // sendTime
+            cursor.getInt(offset + 7) // flag
         );
         return entity;
     }
@@ -150,11 +160,13 @@ public class MsgBeanDao extends AbstractDao<MsgBean, Long> {
     @Override
     public void readEntity(Cursor cursor, MsgBean entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setUid(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setUid(cursor.getLong(offset + 1));
         entity.setContent(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
         entity.setTitle(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setSendTime(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setDec(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setDec(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setClassName(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setSendTime(cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)));
+        entity.setFlag(cursor.getInt(offset + 7));
      }
     
     @Override

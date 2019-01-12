@@ -7,6 +7,7 @@ import com.tk.kmail.model.db_bean.MsgBean
 import com.tk.kmail.model.exception.DecodePassException
 import com.tk.kmail.model.utils.DesUtil
 import com.tk.kmail.model.utils.GsonUtils
+import com.tk.kmail.model.utils.NetUtils
 import java.util.*
 import javax.mail.*
 import javax.mail.event.*
@@ -26,11 +27,63 @@ class Mails(val server: IServer) {
     companion object {
         val PROJECT_NAME = "Tan9-X"
         val PROJECT_NAME_S = Mails.PROJECT_NAME + "_"
+        val KEY_HEAD_CONTENT = "MK-CONTENT"
+        val KEY_HEAD_DESCRIBE = "MK-DESCRIBE"
+        val KEY_HEAD_SUBJECT = "Subject"
+
+        fun parseMessage2MsgBean(msg: Message): MsgBean {
+            val folder = msg.folder as IMAPFolder
+            return MsgBean().apply {
+                content = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_CONTENT)[0]))
+                uid = folder.getUID(msg)
+                title = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_SUBJECT)[0]))
+                dec = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_DESCRIBE)[0]))
+                sendTime = msg.receivedDate
+                className = msg.folder.name
+            }
+        }
+
+        fun parseIGetData2MsgBean(msg: IGetData, password: String): MsgBean {
+            val bean = MsgBean()
+            val j = GsonUtils.gson().toJson(com.tk.kmail.model.bean.MessageDataBean(msg.getMsgContent()))
+            val p = DesUtil.encrypt(password, j)
+            bean.content = p
+            bean.title = msg.getMsgTitle()
+            bean.dec = msg.getMsgDescribe()
+            bean.sendTime = Date()
+            return bean
+        }
+
+        fun parseMessage(msg: Message, password: String): DataBean {
+            return parseMessage2MsgBean(msg).let {
+                parseMsgB2DataB(it, password)
+            }
+        }
+
+        fun parseMsgB2DataB(msgB: MsgBean, password: String): DataBean {
+            return GsonUtils.build(GsonUtils.gson().toJson(msgB)).getClassObj(DataBean::class.java)
+                    .apply {
+                        content = parseJson2MessageDataBean(msgB.content, password).mail_content
+                    }
+        }
+
+        /**
+         * 判断密码，异常抛出
+         */
+        private fun parseJson2MessageDataBean(encodeText: String, password: String): MessageDataBean {
+            val exc = DecodePassException("pass error !")
+            val p = DesUtil.decrypt(password, encodeText)
+            try {
+                val bean = GsonUtils.gson().fromJson(p, com.tk.kmail.model.bean.MessageDataBean::class.java)
+                if (!GsonUtils.isJson(p) || bean == null)
+                    throw exc
+                return bean
+            } catch (ex: JsonSyntaxException) {
+                throw exc
+            }
+        }
     }
 
-    val KEY_HEAD_CONTENT = "MK-CONTENT"
-    val KEY_HEAD_DESCRIBE = "MK-DESCRIBE"
-    val KEY_HEAD_SUBJECT = "Subject"
 
     init {
         val properties = Properties()
@@ -146,22 +199,18 @@ class Mails(val server: IServer) {
     }
 
     fun closeConnected() {
-        if (store.isConnected)
+        if (NetUtils.isNetworkAvailable() && store.isConnected)
             store.close()
 //        if (transport.isConnected)
 //            transport.close()
     }
 
-    fun openFolder(name: String): Folder? {
-        return openFolder(store.getFolder(name))
+    fun openFolder(name: String, autoCreate: Boolean = true): Folder? {
+        return openFolder(store.getFolder(name), autoCreate)
     }
 
-    fun openFolder(folder: Folder): Folder? {
-        return openFolder(folder, true)
-    }
-
-    fun openFolder(folder: Folder, autoCreate: Boolean): Folder? {
-        if (folder.exists() || (autoCreate && folder.create(Folder.HOLDS_MESSAGES))) {
+    fun openFolder(folder: Folder, autoCreate: Boolean = true): Folder? {
+        if (NetUtils.isNetworkAvailable() && (folder.exists() || (autoCreate && folder.create(Folder.HOLDS_MESSAGES)))) {
             if (!folder.isOpen) {
                 folder.open(Folder.READ_WRITE)
 
@@ -185,7 +234,7 @@ class Mails(val server: IServer) {
 
 
     fun closeFolder(folder: Folder) {
-        if (folder.isOpen)
+        if (NetUtils.isNetworkAvailable() && folder.isOpen)
             folder.close(false)
     }
 
@@ -219,27 +268,27 @@ class Mails(val server: IServer) {
         return false
     }
 
-    fun sendMessage(folder: Folder, msg: IGetData, password: String) {
+    fun sendMessage(folder: Folder, msg: IGetData, password: String): MsgBean {
+        val bean = parseIGetData2MsgBean(msg, password)
         val mimeMessage = MimeMessage(mSession).apply {
             setFrom(InternetAddress("ppx@ppx.com", "TanX"))
-            //mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(username));
-//            setSubject(msg.getMsgTitle())
-            val j = GsonUtils.gson().toJson(com.tk.kmail.model.bean.MessageDataBean(msg.getMsgContent()))
-            val p = DesUtil.encrypt(password, j)
-//            println("$j \n $p ")
+            bean.className = folder.name
+            bean.sendTime = Date()
             setHeader(KEY_HEAD_SUBJECT, MimeUtility.fold(9,
-                    MimeUtility.encodeText(msg.getMsgTitle(), null, null)))
+                    MimeUtility.encodeText(bean.title, null, null)))
             setHeader(KEY_HEAD_CONTENT, MimeUtility.fold(9,
-                    MimeUtility.encodeText(p, null, null)))
+                    MimeUtility.encodeText(bean.content, null, null)))
             setHeader(KEY_HEAD_DESCRIBE, MimeUtility.fold(9,
-                    MimeUtility.encodeText(msg.getMsgDescribe(), null, null)))
-            setSentDate(Date())
-            setContent("who are you ?", "text/application")
+                    MimeUtility.encodeText(bean.dec, null, null)))
+            sentDate = bean.sendTime
+            setContent("!!!", "text/application")
             //smtpTran.sendMessage(mimeMessage,new Address[]{new InternetAddress(username, "Tan33")});
 
         }
+        bean.uid = (folder as IMAPFolder).uidNext
         folder.appendMessages(arrayOf(mimeMessage))
 //        println("新发送的UID：" + (folder as IMAPFolder).getUID(mimeMessage))
+        return bean
     }
 
     fun getFolderList(): Array<out Folder> {
@@ -257,51 +306,5 @@ class Mails(val server: IServer) {
         return fetchProfile
     }
 
-    fun parseMessage2MsgBean(msg: Message, password: String): MsgBean {
-        val exc = DecodePassException("pass error !")
-        val folder = msg.folder as IMAPFolder
-        return MsgBean().apply {
-            content = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_CONTENT)[0]))
-            parseJson2MessageDataBean(content, password)
-            uid = folder.getUID(msg).toString()
-            title = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_SUBJECT)[0]))
-            dec = MimeUtility.decodeText(MimeUtility.unfold(msg.getHeader(KEY_HEAD_DESCRIBE)[0]))
-            sendTime = msg.receivedDate.toString()
-            this.msg = msg
-        }
-    }
 
-
-    fun parseMessage(msg: Message, password: String): DataBean {
-        return parseMessage2MsgBean(msg, password).let {
-            parseMsgB2DataB(it, password)
-        }
-    }
-
-    fun parseMsgB2DataB(msgB: MsgBean, password: String): DataBean {
-        return DataBean().apply {
-            content = parseJson2MessageDataBean(msgB.content, password).mail_content
-            title = msgB.title
-            dec = msgB.dec
-            sendTime = msgB.sendTime
-            msg = msgB.msg
-            uid = msgB.uid
-        }
-    }
-
-    /**
-     * 判断密码，异常抛出
-     */
-    private fun parseJson2MessageDataBean(encodeText: String, password: String): MessageDataBean {
-        val exc = DecodePassException("pass error !")
-        val p = DesUtil.decrypt(password, encodeText)
-        try {
-            val bean = GsonUtils.gson().fromJson(p, com.tk.kmail.model.bean.MessageDataBean::class.java)
-            if (!GsonUtils.isJson(p) || bean == null)
-                throw exc
-            return bean
-        } catch (ex: JsonSyntaxException) {
-            throw exc
-        }
-    }
 }

@@ -16,9 +16,6 @@ import com.tk.kmail.model.utils.Evs
 import com.tk.kmail.mvp.Login
 import com.tk.kmail.mvp.base.ResultBean
 import com.tk.kmail.project.UserManager.View
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main2.*
 import kotlinx.android.synthetic.main.include_appbar.*
 import kotlinx.android.synthetic.main.nav_header_main2.*
@@ -36,7 +33,6 @@ class Main2Activity : BaseActivity<com.tk.kmail.mvp.base.IBase.View<com.tk.kmail
 
 
     override fun initView() {
-
         Evs.reg(this)
         setSupportActionBar(toolbar)
         val toggle = ActionBarDrawerToggle(

@@ -5,6 +5,9 @@ package com.tk.kmail.model.bean
  * Created by TangKai on 2019/1/8.
  */
 class MessageTagBean(val tag: String, var text: String = "") {
+    /**
+     * 是否可以删除
+     */
     var isDeleted: Boolean = true
 
     override fun equals(other: Any?): Boolean {
