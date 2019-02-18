@@ -6,9 +6,6 @@ import android.databinding.ViewDataBinding
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
-import butterknife.Bind
-import com.tk.kmail.App
-import com.tk.kmail.databinding.LayoutItemUsersBinding
 
 /**
  * Created by TangKai on 2018/12/24.

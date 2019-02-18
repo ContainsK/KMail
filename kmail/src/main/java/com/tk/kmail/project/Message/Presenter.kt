@@ -127,8 +127,7 @@ class Presenter(override val mView: Message.View) : Message.Presenter {
             }
             val app = App.mails!!
             val b = app.sendMessage(getFolder(folderName)!!, bean, mView.getPassword())
-            if (b.uid > 0)
-                App.daoSession.msgBeanDao.insert(b)
+            App.daoSession.msgBeanDao.insert(b)
         }.subscribe({
             mView.hideWaitingDialog()
             mView.callResult(ResultBean(Message.TYPE_SEND, true, result = "保存成功！"))

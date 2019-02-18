@@ -26,7 +26,7 @@ class IBase private constructor() {
         }
     }
 
-    interface View<T:Presenter<*>> : Base {
+    interface View<T : Presenter<*>> : Base {
         val mPresenter: T
             get() = getPresenter()
 

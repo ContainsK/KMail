@@ -44,7 +44,7 @@ class Presenter(override val mView: ProjectMng.View) : ProjectMng.Presenter {
         mView.runDialog("创建项目中...") {
             if (!NetUtils.isNetworkAvailable()) {
                 val ls = clsDao.queryBuilder()
-                        .where(ClassBeanDao.Properties.Name.eq(name)).list()
+                        .where(ClassBeanDao.Properties.Name.eq(name)).limit(1).list()
                 if (ls.size < 1) {
                     App.daoSession.classBeanDao.insert(ClassBean().apply {
                         this.name = name
@@ -56,7 +56,7 @@ class Presenter(override val mView: ProjectMng.View) : ProjectMng.Presenter {
             }
 
 
-            val b = App.mails!!.openFolder(name, false) != null
+            val b = App.mails!!.openFolder(name).exists()
             if (b) {
                 App.daoSession.classBeanDao.queryBuilder().where(ClassBeanDao.Properties.Name.eq(name))
                         .buildDelete().executeDeleteWithoutDetachingEntities()

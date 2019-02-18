@@ -205,11 +205,11 @@ class Mails(val server: IServer) {
 //            transport.close()
     }
 
-    fun openFolder(name: String, autoCreate: Boolean = true): Folder? {
+    fun openFolder(name: String, autoCreate: Boolean = true): Folder {
         return openFolder(store.getFolder(name), autoCreate)
     }
 
-    fun openFolder(folder: Folder, autoCreate: Boolean = true): Folder? {
+    fun openFolder(folder: Folder, autoCreate: Boolean = true): Folder {
         if (NetUtils.isNetworkAvailable() && (folder.exists() || (autoCreate && folder.create(Folder.HOLDS_MESSAGES)))) {
             if (!folder.isOpen) {
                 folder.open(Folder.READ_WRITE)
@@ -226,10 +226,8 @@ class Mails(val server: IServer) {
                     }
                 })
             }
-
-            return folder
         }
-        return null
+        return folder
     }
 
 
@@ -262,18 +260,20 @@ class Mails(val server: IServer) {
             val uid = folder.getUID(msg)
             val messageByUID = folder.getMessageByUID(uid)
             messageByUID.setFlag(Flags.Flag.DELETED, true)
-//            folder.expunge()
+            folder.expunge()
             return true
         }
         return false
     }
 
     fun sendMessage(folder: Folder, msg: IGetData, password: String): MsgBean {
-        val bean = parseIGetData2MsgBean(msg, password)
+        return sendMessage(folder,parseIGetData2MsgBean(msg, password))
+    }
+
+    fun sendMessage(folder: Folder, bean: MsgBean): MsgBean {
         val mimeMessage = MimeMessage(mSession).apply {
             setFrom(InternetAddress("ppx@ppx.com", "TanX"))
             bean.className = folder.name
-            bean.sendTime = Date()
             setHeader(KEY_HEAD_SUBJECT, MimeUtility.fold(9,
                     MimeUtility.encodeText(bean.title, null, null)))
             setHeader(KEY_HEAD_CONTENT, MimeUtility.fold(9,

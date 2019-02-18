@@ -21,6 +21,7 @@ import com.tk.kmail.model.utils.ToastUtils
 import com.tk.kmail.mvp.Message
 import com.tk.kmail.mvp.base.ResultBean
 import com.tk.kmail.project.Message.Presenter
+import kotlinx.android.synthetic.main.include_appbar.*
 import kotlinx.android.synthetic.main.include_appbar.view.*
 import kotlinx.android.synthetic.main.layout_new_add_message.view.*
 import org.greenrobot.eventbus.Subscribe
@@ -114,7 +115,12 @@ class Main4Activity : BaseActivity<Message.View>() {
             }
             return
         }
-
+        setSupportActionBar(toolbar)
+        getSupportActionBar()!!.setDisplayHomeAsUpEnabled(true)//左侧添加一个默认的返回图标
+//        getSupportActionBar()?.setHomeButtonEnabled(true); //设置返回键可用
+        toolbar.setNavigationOnClickListener {
+            finish()
+        }
         (mContentView as ViewGroup).apply {
             arrText.forEach {
                 linearLayout.addView(createW(MessageTagBean(it)))
@@ -236,9 +242,14 @@ class Main4Activity : BaseActivity<Message.View>() {
             isCounterEnabled = true
             if (!isRead) {
                 setOnLongClickListener {
+
                     if (tag.isDeleted) {
-                        (parent as ViewGroup).removeView(it)
-                        tagList.remove(tag)
+                        if (!arrText.contains(tag.tag)) {
+                            (parent as ViewGroup).removeView(it)
+                            tagList.remove(tag)
+                        } else {
+                            ToastUtils.show("固定标签，不可以删除！")
+                        }
                     }
                     true
                 }

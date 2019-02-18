@@ -6,6 +6,12 @@ package com.tk.kmail
  *
 TODO Project Aha~~~
 
+
+
+将数据定在同一文件夹
+使用 search 过滤数据，将分类作为Head字段标识
+
+
 系统｛
 
 ｝
