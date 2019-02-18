@@ -106,6 +106,11 @@ class Main4Activity : BaseActivity<Message.View>() {
         Evs.reg(this)
         isRead = intent.getBooleanExtra("read", false)
         setSupportActionBar(mContentView!!.toolbar)
+        getSupportActionBar()!!.setDisplayHomeAsUpEnabled(true)//左侧添加一个默认的返回图标
+//        getSupportActionBar()?.setHomeButtonEnabled(true); //设置返回键可用
+        toolbar.setNavigationOnClickListener {
+            finish()
+        }
         if (isRead) {
             println(data.content)
             tagList.addAll(GsonUtils.build(data.content).getClassType(Array<MessageTagBean>::class.java))
@@ -115,12 +120,7 @@ class Main4Activity : BaseActivity<Message.View>() {
             }
             return
         }
-        setSupportActionBar(toolbar)
-        getSupportActionBar()!!.setDisplayHomeAsUpEnabled(true)//左侧添加一个默认的返回图标
-//        getSupportActionBar()?.setHomeButtonEnabled(true); //设置返回键可用
-        toolbar.setNavigationOnClickListener {
-            finish()
-        }
+
         (mContentView as ViewGroup).apply {
             arrText.forEach {
                 linearLayout.addView(createW(MessageTagBean(it)))

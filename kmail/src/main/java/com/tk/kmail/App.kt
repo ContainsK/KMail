@@ -16,7 +16,6 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
-import javax.mail.search.HeaderTerm
 
 /**
  * Created by TangKai on 2018/12/18.
@@ -29,7 +28,6 @@ class App : Application() {
         var mails: Mails? = null
         private var subscribeKeep: Disposable? = null
 
-
         fun startKeep() {
             if (mails == null)
                 return
@@ -40,8 +38,10 @@ class App : Application() {
                     .map {
 
                         println(".... keep ...")
-                        if (!NetUtils.isNetworkAvailable())
+                        if (!NetUtils.isNetworkAvailable()) {
+                            stopKeep()
                             return@map
+                        }
                         val mails = mails!!
                         if (!mails.isConnected() && !mails.connected())
                             return@map
@@ -83,8 +83,10 @@ class App : Application() {
                                     } else if (it.flag == Flag.FLAG_DELETE) {
                                         println("删除f $it")
                                         var b = true
-                                        if (f.exists())
+                                        if (f.exists()) {
+                                            f.close()
                                             b = f.delete(true)
+                                        }
                                         if (b)
                                             App.daoSession.classBeanDao.delete(it)
                                     }

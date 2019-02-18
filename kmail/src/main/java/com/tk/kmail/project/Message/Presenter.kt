@@ -57,7 +57,7 @@ class Presenter(override val mView: Message.View) : Message.Presenter {
         val aStart = start.coerceIn(1, count)
         val aEnd = (aStart - 1 + countA).coerceIn(aStart, count)
         val cacheMsgs = msgDao.queryBuilder()
-                .where(MsgBeanDao.Properties.ClassName.eq(folderName))
+                .where(MsgBeanDao.Properties.ClassName.eq(folderName), MsgBeanDao.Properties.Flag.notEq(Flag.FLAG_DELETE))
                 .orderAsc(MsgBeanDao.Properties.SendTime).offset(aStart - 1).limit(countA).list()
         if (netStatus) {
             val messages = folder!!.getMessages(aStart, aEnd)
@@ -65,8 +65,8 @@ class Presenter(override val mView: Message.View) : Message.Presenter {
             val w = imapFolder.getUID(messages.first())
             println(w.toString())
 
-            if (cacheMsgs.isEmpty() || cacheMsgs.size != messages.size || cacheMsgs.first().uid != imapFolder.getUID(messages.first())
-                    || cacheMsgs.last().uid != imapFolder.getUID(messages.last())) {
+            if (App.mails!!.isGetMessage() && (cacheMsgs.isEmpty() || cacheMsgs.size != messages.size || cacheMsgs.first().uid != imapFolder.getUID(messages.first())
+                            || cacheMsgs.last().uid != imapFolder.getUID(messages.last()))) {
                 //顺序不对,删除本地的，在添加新的
                 //TODO 这里函数需要对不同分类的UID数据进行处理
 
@@ -154,7 +154,7 @@ class Presenter(override val mView: Message.View) : Message.Presenter {
                     if (ls[0].flag == Flag.FLAG_DEFAULT) {
                         ls[0].flag = Flag.FLAG_DELETE
                         App.daoSession.msgBeanDao.update(ls[0])
-                    } else {
+                    } else if (ls[0].flag == Flag.FLAG_CREATE) {
                         App.daoSession.msgBeanDao.delete(ls[0])
                     }
                 }

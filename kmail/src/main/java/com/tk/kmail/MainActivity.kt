@@ -14,25 +14,25 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_setting)
-        val username = "fgbqahzuk46430@qq.com"
-        val password = "xfdtpevgqgvpjdeg"
-
-        serverConfig = ServerConfig(username, password)
-        Observable.just(serverConfig)
-                .map {
-                    println("准备连接中.....")
-                    mails = Mails(it)
-                    mails.connected()
-
-                    true
-                }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    println("连接成功.....")
-                    supportActionBar?.setTitle("连接服务器：" + it) ?: println("supportActionBar is null")
-
-                }
+//        val username = "fgbqahzuk46430@qq.com"
+//        val password = "xfdtpevgqgvpjdeg"
+//
+//        serverConfig = ServerConfig(username, password)
+//        Observable.just(serverConfig)
+//                .map {
+//                    println("准备连接中.....")
+//                    mails = Mails(it)
+//                    mails.connected()
+//
+//                    true
+//                }
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe {
+//                    println("连接成功.....")
+//                    supportActionBar?.setTitle("连接服务器：" + it) ?: println("supportActionBar is null")
+//
+//                }
 
 
 

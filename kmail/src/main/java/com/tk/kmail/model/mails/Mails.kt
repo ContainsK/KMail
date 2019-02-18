@@ -22,6 +22,7 @@ import javax.mail.internet.MimeUtility
 class Mails(val server: IServer) {
     var mSession: Session
     lateinit var store: Store
+    private var delTim: Long = 0
 //    lateinit var transport: Transport
 
     companion object {
@@ -254,6 +255,10 @@ class Mails(val server: IServer) {
         folder.delete(true)
     }
 
+    fun isGetMessage(): Boolean {
+        return (System.currentTimeMillis() - delTim) > 15 * 1000
+    }
+
     fun deleteMessage(msg: Message): Boolean {
         val folder = openFolder(msg.folder)
         if (folder is IMAPFolder) {
@@ -261,13 +266,14 @@ class Mails(val server: IServer) {
             val messageByUID = folder.getMessageByUID(uid)
             messageByUID.setFlag(Flags.Flag.DELETED, true)
             folder.expunge()
+            delTim = System.currentTimeMillis()
             return true
         }
         return false
     }
 
     fun sendMessage(folder: Folder, msg: IGetData, password: String): MsgBean {
-        return sendMessage(folder,parseIGetData2MsgBean(msg, password))
+        return sendMessage(folder, parseIGetData2MsgBean(msg, password))
     }
 
     fun sendMessage(folder: Folder, bean: MsgBean): MsgBean {

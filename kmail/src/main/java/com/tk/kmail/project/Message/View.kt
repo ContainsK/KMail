@@ -4,9 +4,9 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.tk.kmail.App
 import com.tk.kmail.R
 import com.tk.kmail.base.BaseFragment
 import com.tk.kmail.base.IBase
@@ -93,10 +93,13 @@ class View : BaseFragment<Message.View>() {
             //                    setMessage()
 //                    setTitle("输入密码")
             val v = LayoutInflater.from(context).inflate(R.layout.include_edittext, mContentView as ViewGroup, false)
+            v.tiet_text.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            v.til_layout.isPasswordVisibilityToggleEnabled = true
 
-
+            v.til_layout.layoutParams = v.til_layout.layoutParams
             v.tiet_text.setHint("输入密码")
             v.tv_title.text = "请输入密码："
+
             setView(v)
 
             setPositiveButton("确定") { a, b ->

@@ -33,7 +33,7 @@ class Presenter(override val mView: ProjectMng.View) : ProjectMng.Presenter {
                     })
             }
         } else {
-            list = App.daoSession.classBeanDao.loadAll()
+            list = App.daoSession.classBeanDao.queryBuilder().where(ClassBeanDao.Properties.Flag.notEq(Flag.FLAG_DELETE)).list()
         }
         return list
     }
@@ -82,8 +82,9 @@ class Presenter(override val mView: ProjectMng.View) : ProjectMng.Presenter {
                             if (it.flag == Flag.FLAG_DEFAULT) {
                                 it.flag = Flag.FLAG_DELETE
                                 msgDao.update(it)
-                            } else
+                            } else if (it.flag == Flag.FLAG_CREATE) {
                                 msgDao.delete(it)
+                            }
                         }
 
                 clsDao.queryBuilder()
@@ -92,8 +93,9 @@ class Presenter(override val mView: ProjectMng.View) : ProjectMng.Presenter {
                             if (it.flag == Flag.FLAG_DEFAULT) {
                                 it.flag = Flag.FLAG_DELETE
                                 clsDao.update(it)
-                            } else
+                            } else if (it.flag == Flag.FLAG_CREATE) {
                                 clsDao.delete(it)
+                            }
                         }
                 return@runDialog true
             }
