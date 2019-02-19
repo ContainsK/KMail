@@ -54,4 +54,32 @@ class MessageAdapter(var list: MutableList<DataBean>, val vp: Message.View) : Re
 //                                p0.itemView.apply { tv_title.text = "2" }
     }
 
+    override fun onViewDetachedFromWindow(holder: BaseViewHolder<LayoutItemMessagesBinding>) {
+        super.onViewDetachedFromWindow(holder)
+        println("${holder.layoutPosition} Detached from window")
+        if (onTachedListener != null) {
+            onTachedListener?.onViewDetached(this, holder)
+        }
+    }
+
+    override fun onViewAttachedToWindow(holder: BaseViewHolder<LayoutItemMessagesBinding>) {
+        super.onViewAttachedToWindow(holder)
+        println("${holder.layoutPosition} Attached from window")
+        if (onTachedListener != null) {
+            onTachedListener?.onViewAttached(this, holder)
+        }
+
+    }
+
+    var onTachedListener: OnViewTachedListener? = null
+    fun setOnViewTachedListener(listener: OnViewTachedListener) {
+        onTachedListener = listener
+    }
+
+    companion object {
+        interface OnViewTachedListener {
+            fun onViewDetached(adapter: RecyclerView.Adapter<*>, holder: BaseViewHolder<*>)
+            fun onViewAttached(adapter: RecyclerView.Adapter<*>, holder: BaseViewHolder<*>)
+        }
+    }
 }

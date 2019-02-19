@@ -40,7 +40,7 @@ class Main2Activity : BaseActivity<com.tk.kmail.mvp.base.IBase.View<com.tk.kmail
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
-
+        println(123 or 124)
 //        fragmentBegin = supportFragmentManager.beginTransaction()
         nav_view.setNavigationItemSelectedListener(this)
         nav_view.setCheckedItem(R.id.nav_camera)

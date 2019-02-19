@@ -165,7 +165,8 @@ class Presenter(override val mView: Message.View) : Message.Presenter {
             val folder = getFolder(folderName) as IMAPFolder
             val msg = folder.getMessageByUID(uid)
 //            println("msg1 ${msg.flags} ${msg.isExpunged}")
-            App.mails!!.deleteMessage(msg)
+            if (msg != null)
+                App.mails!!.deleteMessage(msg)
             build.buildDelete().executeDeleteWithoutDetachingEntities()
 
 //            msg.folder.fetch(arrayOf(msg), App.mails!!.getFetchProfile())

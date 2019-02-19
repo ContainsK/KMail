@@ -4,11 +4,13 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.tk.kmail.R
 import com.tk.kmail.base.BaseFragment
+import com.tk.kmail.base.BaseViewHolder
 import com.tk.kmail.base.IBase
 import com.tk.kmail.model.eventbus.EventBusBean
 import com.tk.kmail.model.mails.DataBean
@@ -21,6 +23,7 @@ import com.tk.kmail.project.Main.Main4Activity
 import kotlinx.android.synthetic.main.include_edittext.view.*
 import kotlinx.android.synthetic.main.include_recyclerview.*
 import kotlinx.android.synthetic.main.include_swipe_recyclerview.*
+
 
 @SuppressLint("ValidFragment")
 /**
@@ -39,15 +42,35 @@ class View : BaseFragment<Message.View>() {
             }
 
             override fun refreshList(list: MutableList<DataBean>) {
+
                 if (!::adapter.isInitialized) {
                     adapter = MessageAdapter(list, this)
+                    adapter.setOnViewTachedListener(object : MessageAdapter.Companion.OnViewTachedListener {
+
+                        override fun onViewDetached(adapter: RecyclerView.Adapter<*>, holder: BaseViewHolder<*>) {
+                        }
+
+                        override fun onViewAttached(adapter: RecyclerView.Adapter<*>, holder: BaseViewHolder<*>) {
+                            if (holder.layoutPosition > adapter.itemCount - 2) {
+                                refresh(true)
+                            }
+                        }
+
+                    })
                     this@View.recyclerView.adapter = adapter
                 } else {
-                    adapter.list.addAll(list)
-                    adapter.notifyDataSetChanged()
+                    if (adapter.itemCount == 0) {
+                        adapter.list.addAll(list)
+                        adapter.notifyDataSetChanged()
+                    } else {
+                        adapter.list.addAll(list)
+                        adapter.notifyItemRangeChanged(start, count)
+                    }
+
+
                 }
 
-
+                start += list.size
             }
 
             override fun getPresenter(): Message.Presenter {
@@ -81,6 +104,24 @@ class View : BaseFragment<Message.View>() {
 
     override fun initView() {
         recyclerView.layoutManager = LinearLayoutManager(getThisContext())
+//        recyclerView.onFlingListener = object : RecyclerView.OnFlingListener() {
+//            override fun onFling(p0: Int, p1: Int): Boolean {
+//                print("$p0 - $p1")
+//                return true
+//            }
+//
+//        }
+//        recyclerView.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
+//            override fun onChildViewDetachedFromWindow(p0: View) {
+//                println("onChildViewDetachedFromWindow $p0")
+//            }
+//
+//            override fun onChildViewAttachedToWindow(p0: View) {
+//                println("onChildViewAttachedToWindow $p0")
+//            }
+//
+//        })
+
         swipeRefresh.setOnRefreshListener {
             refresh()
             swipeRefresh.isRefreshing = false
@@ -124,6 +165,7 @@ class View : BaseFragment<Message.View>() {
     }
 
     private fun refresh(isMore: Boolean = false) {
+        println("refresh")
         if (!::pass.isInitialized)
             return
 //        if (App.mails == null) {
@@ -136,7 +178,6 @@ class View : BaseFragment<Message.View>() {
             start = 1
         }
         mViewP.mPresenter.refreshList(mViewP.mPresenter.getClassBean().name, start, count)
-        start += count
     }
 
     override fun recycler() {
